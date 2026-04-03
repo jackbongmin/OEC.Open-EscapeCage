@@ -1,0 +1,187 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Engine/DataTable.h"
+#include "Abilities/GameplayAbility.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "GameplayTagsClasses.h"
+#include "Data/OecEnumType.h"
+
+
+/*
+===========================================================================
+질문 데이터
+===========================================================================
+*/
+USTRUCT(BlueprintType)
+struct FQuestionStaticData : public FTableRowBase
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    EQuestionType QuestionType;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = "true"))
+    FString QuestionText;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FString RedBtnText;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FString BlueBtnText;
+
+    // --- 빨간 버튼 결과 ---
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FGameplayTag RedBtnEventTag;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float RedBtnPayloadValue;
+
+    // 아이템 코드나 몬스터 ID를 넘겨줄 때 사용
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName RedBtnPayloadString;
+
+    // --- 파란 버튼 결과 ---
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FGameplayTag BlueBtnEventTag;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float BlueBtnPayloadValue;
+
+    // 아이템 코드나 몬스터 ID를 넘겨줄 때 사용
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName BlueBtnPayloadString;
+};
+
+/*
+===========================================================================
+방 타입 데이터
+===========================================================================
+*/
+USTRUCT(BlueprintType)
+struct FRoomStaticData : public FTableRowBase
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    ERoomType RoomType;
+
+    // 방 내부 레벨 (Level Instance나 별도 맵 경로)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TSoftObjectPtr<UWorld> RoomLevel;
+
+    // 방에서 발생할 수 있는 이벤트 태그 리스트
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FGameplayTagContainer PossibleEventTags;
+};
+
+/*
+===========================================================================
+아이템 데이터
+===========================================================================
+*/
+USTRUCT(BlueprintType)
+struct FItemStaticData : public FTableRowBase
+{
+    GENERATED_BODY()
+
+public:
+    // 아이템 기본 정보
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName ItemCode;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FString ItemName;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    EItemType ItemType;
+
+    // 공통: 스폰할 액터 클래스 (무기면 장착용, 소모품이면 월드 드랍용)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TSoftClassPtr<AActor> ItemActorClass;
+
+    // --- 무기 전용 수치 ---
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float Damage;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float AttackRange;
+
+    // --- 소모품 전용 수치 (GAS 활용) ---
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FGameplayTag EffectTag; // 어떤 버프를 줄지 (Heal, SpeedUp 등)
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float EffectValue;
+};
+
+/*
+===========================================================================
+몬스터 데이터
+===========================================================================
+*/
+USTRUCT(BlueprintType)
+struct FMonsterStaticData : public FTableRowBase
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FString MonsterName;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TSoftClassPtr<APawn> MonsterClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float BaseHealth;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float BaseDamage;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float MoveSpeed;
+
+    // 죽었을 때 줄 아이템 (ItemStaticData의 ItemCode 연결)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName DropItemCode;
+};
+
+/*
+===========================================================================
+정신력 데이터
+===========================================================================
+*/
+USTRUCT(BlueprintType)
+struct FSanityStaticData : public FTableRowBase
+{
+    GENERATED_BODY()
+
+public:
+    // 이 데이터가 어떤 상태를 나타내는지 (핵심 식별자)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    ESanityState SanityState;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float MinValue;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float MaxValue;
+
+    // 해당 단계에 진입했을 때 부여할 버프/디버프 (GAS 적용용)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TSubclassOf<UGameplayEffect> SanityEffectClass;
+
+    // 패닉 상태 전용 (글자 도배 기믹 활성화)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool bIsPanic;
+};
+
+/*
+===========================================================================
+ 데이터
+===========================================================================
+*/
