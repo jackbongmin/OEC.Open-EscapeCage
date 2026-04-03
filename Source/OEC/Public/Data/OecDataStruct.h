@@ -8,6 +8,7 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "GameplayTagsClasses.h"
 #include "Data/OecEnumType.h"
+#include "OecDataStruct.generated.h"
 
 
 /*
