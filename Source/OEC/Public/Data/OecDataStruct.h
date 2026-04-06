@@ -183,6 +183,18 @@ public:
 
 /*
 ===========================================================================
- 데이터
+ 인벤토리 슬롯 구조체
 ===========================================================================
 */
+USTRUCT(BlueprintType)
+struct FInventorySlot
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName ItemCode = NAME_None; // 어떤 아이템인가?
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 Quantity = 0; // 몇 개인가?
+};
