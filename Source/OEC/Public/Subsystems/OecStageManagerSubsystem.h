@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Data/OecEnumType.h"
+#include "Data/OecDataStruct.h"
 #include "OecStageManagerSubsystem.generated.h"
 
 
@@ -33,6 +34,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "OEC|Stage")
 	int GetCurrentStack() const { return CurrentStack; }
 
+	// 복도에 배치할 방 8개를 랜덤으로 섞어서 생성하는 함수
+	UFUNCTION(BlueprintCallable, Category = "OEC|Stage")
+	void GeneratePhase2Rooms(int32 InCorridorLevel, const TArray<FTransform>& InDoorTransforms);
+
+private:
+	// 실제 맵을 월드에 스폰하는 헬퍼 함수
+	void SpawnRoomLevel(TSoftObjectPtr<UWorld> InRoomLevel, FTransform InSpawnTransform);
+
+public:
 	UFUNCTION(BlueprintCallable, Category = "OEC|Stage")
 	EOecGamePhase GetCurrentPhase() const { return CurrentPhase; }
 
@@ -44,7 +54,6 @@ public:
 	FOnPhaseChangedDelegate OnPhaseChanged;
 
 private:
-	void GeneratePhase2Rooms();
 
 	int32 CurrentStack;
 

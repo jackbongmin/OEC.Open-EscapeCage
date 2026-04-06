@@ -18,6 +18,7 @@ public:
     virtual void Interact_Implementation(AActor* InInteractor) override;
 
 protected:
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "OEC|Components")
     UStaticMeshComponent* MeshComponent;
 };

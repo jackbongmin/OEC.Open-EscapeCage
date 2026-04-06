@@ -17,10 +17,12 @@ enum class EQuestionType : uint8
 UENUM(BlueprintType)
 enum class ERoomType : uint8
 {
-    Safe,
-    Supply,
-    Danger,
-    Exit
+    Main          UMETA(DisplayName = "메인 방 (페이즈 1)"),
+    Safe          UMETA(DisplayName = "안전 방"),
+    Supply        UMETA(DisplayName = "보급 방"),
+    Danger        UMETA(DisplayName = "위험 방 (몬스터)"),
+    NextCorridor  UMETA(DisplayName = "다음 복도로 가는 방"),
+    Exit          UMETA(DisplayName = "탈출 방 (게임 클리어)")
 };
 
 UENUM(BlueprintType)
