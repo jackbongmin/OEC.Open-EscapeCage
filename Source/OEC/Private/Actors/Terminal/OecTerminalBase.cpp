@@ -5,6 +5,7 @@
 #include "Actors/Interactable/Interact/OecQuestionButton.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
+#include "UI/Ingame/OecTerminalWidget.h"
 #include "Data/OecDataStruct.h"
 
 // Sets default values
@@ -12,6 +13,13 @@ AOecTerminalBase::AOecTerminalBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+    MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+    RootComponent = MeshComponent;
+
+    ScreenWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("ScreenWidget"));
+    ScreenWidget->SetupAttachment(RootComponent);
+
+    ScreenWidget->SetWidgetSpace(EWidgetSpace::World);
 }
 
 void AOecTerminalBase::InitializeTerminal()
@@ -87,7 +95,15 @@ void AOecTerminalBase::InitializeTerminal()
         UE_LOG(LogTemp, Log, TEXT("뽑힌 타입: %d | 단말기 화면: %s"), (int32)selectedType, *finalQuestion->QuestionText);
         UE_LOG(LogTemp, Log, TEXT("===================================="));
 
-        UpdateTerminalUI(finalQuestion->QuestionText);
+        if (UOecTerminalWidget* terminalUI = Cast<UOecTerminalWidget>(ScreenWidget->GetUserWidgetObject()))
+        {
+            terminalUI->UpdateTerminalUI(finalQuestion->QuestionText, finalQuestion->RedBtnText, finalQuestion->BlueBtnText);
+            UE_LOG(LogTemp, Log, TEXT("UI 업데이트 성공"));
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("UI 캐스트 실패 단말기 위젯 클래스가 잘못 지정되었습니다."));
+        }
 
         if (RedButton)
         {
@@ -104,6 +120,8 @@ void AOecTerminalBase::InitializeTerminal()
 void AOecTerminalBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+    InitializeTerminal();
 	
 }
 
