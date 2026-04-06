@@ -40,3 +40,10 @@ enum class ESanityState : uint8
     Terror      UMETA(DisplayName = "공포"),
     Panic       UMETA(DisplayName = "패닉")
 };
+
+UENUM(BlueprintType)
+enum class EOecGamePhase : uint8
+{
+    Phase1_MainRoom     UMETA(DisplayName = "페이즈 1: 메인 방"),
+    Phase2_Corridor     UMETA(DisplayName = "페이즈 2: 복도 탐색")
+};
