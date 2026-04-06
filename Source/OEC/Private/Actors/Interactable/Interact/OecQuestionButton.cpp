@@ -1,0 +1,35 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "Actors/Interactable/Interact/OecQuestionButton.h"
+#include "Subsystems/OecEventSubsystem.h"
+
+void AOecQuestionButton::Interact_Implementation(AActor* InInteractor)
+{
+    Super::Interact_Implementation(InInteractor);
+
+    PlayButtonPressFeedback();
+    TriggerButtonEvent();
+}
+
+void AOecQuestionButton::SetButtonEventData(FGameplayTag InTag, float InPayloadValue, FName InPayloadString)
+{
+    EventTag = InTag;
+    PayloadValue = InPayloadValue;
+    PayloadString = InPayloadString;
+
+    UE_LOG(LogTemp, Log, TEXT("버튼 데이터 갱신 완료: %s"), *EventTag.ToString());
+}
+
+void AOecQuestionButton::PlayButtonPressFeedback()
+{
+    UE_LOG(LogTemp, Log, TEXT("버튼 눌림"));
+}
+
+void AOecQuestionButton::TriggerButtonEvent()
+{
+    if (UOecEventSubsystem* eventSubsystem = GetGameInstance()->GetSubsystem<UOecEventSubsystem>())
+    {
+        eventSubsystem->ProcessQuestionResult(EventTag, PayloadValue, PayloadString);
+    }
+}
