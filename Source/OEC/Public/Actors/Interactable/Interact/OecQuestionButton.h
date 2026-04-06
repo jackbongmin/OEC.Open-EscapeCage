@@ -10,6 +10,8 @@
 /**
  * 
  */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnButtonClickedDelegate);
+
 UCLASS()
 class OEC_API AOecQuestionButton : public AOecInteractableBase
 {
@@ -19,7 +21,7 @@ public:
     virtual void Interact_Implementation(AActor* InInteractor) override;
 
     UFUNCTION(BlueprintCallable, Category = "OEC|Event")
-    void SetButtonEventData(FGameplayTag InTag, float InPayloadValue, FName InPayloadString);
+    void SetButtonEventData(FName InQuestionID, FGameplayTag InTag, float InPayloadValue, FName InPayloadString);
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OEC|Event Data")
@@ -30,6 +32,14 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OEC|Event Data")
     FName PayloadString;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OEC|Event Data")
+    FName QuestionID;
+
+
+public:
+    UPROPERTY(BlueprintAssignable, Category = "OEC|Event")
+    FOnButtonClickedDelegate OnButtonClicked;
 
 private:
     void PlayButtonPressFeedback();

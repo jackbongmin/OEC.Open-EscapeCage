@@ -8,6 +8,8 @@
 #include "UI/Ingame/OecTerminalWidget.h"
 #include "Data/OecDataStruct.h"
 
+#include "Subsystems/OecEventSubsystem.h"
+
 // Sets default values
 AOecTerminalBase::AOecTerminalBase()
 {
@@ -22,6 +24,24 @@ AOecTerminalBase::AOecTerminalBase()
     ScreenWidget->SetWidgetSpace(EWidgetSpace::World);
 }
 
+void AOecTerminalBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+    InitializeTerminal();
+
+    if (RedButton)
+    {
+        RedButton->OnButtonClicked.AddDynamic(this, &AOecTerminalBase::InitializeTerminal);
+    }
+
+    if (BlueButton)
+    {
+        BlueButton->OnButtonClicked.AddDynamic(this, &AOecTerminalBase::InitializeTerminal);
+    }
+	
+}
+
 void AOecTerminalBase::InitializeTerminal()
 {
     if (!QuestionDataTable)
@@ -29,6 +49,9 @@ void AOecTerminalBase::InitializeTerminal()
         UE_LOG(LogTemp, Error, TEXT("단말기에 질문 데이터 테이블이 연결되지 않았음"));
         return;
     }
+
+    UOecEventSubsystem* eventSubsystem = GetGameInstance()->GetSubsystem<UOecEventSubsystem>();
+    if (!eventSubsystem) return;
 
     // 타입별로 질문을 받을 준비
     TMap<EQuestionType, TArray<FQuestionStaticData*>> categorizedQuestions;
@@ -39,13 +62,27 @@ void AOecTerminalBase::InitializeTerminal()
 
     if (allRows.Num() == 0) return;
 
-    // 바구니에 타입별로 분류해서 담기
+    TArray<FQuestionStaticData*> filteredRows;
     for (FQuestionStaticData* row : allRows)
     {
-        if (row)
+        // 널 포인터 체크 & 서브시스템에 아직 안 쓴 질문인지 ID로 확인!
+        if (row && !eventSubsystem->IsQuestionUsed(row->QuestionID))
         {
-            categorizedQuestions.FindOrAdd(row->QuestionType).Add(row);
+            filteredRows.Add(row);
         }
+    }
+
+    // 만약 모든 질문을 다 써버렸다면?
+    if (filteredRows.Num() == 0)
+    {
+        eventSubsystem->ResetUsedQuestions();
+        filteredRows = allRows; // 다시 전체 리스트로 복구
+    }
+
+    // 이제 filteredRows 안에서 타입별 분류 및 확률 계산 진행!
+    for (FQuestionStaticData* row : filteredRows)
+    {
+        categorizedQuestions.FindOrAdd(row->QuestionType).Add(row);
     }
 
     // 전체 확률 총합 구하기
@@ -107,23 +144,18 @@ void AOecTerminalBase::InitializeTerminal()
 
         if (RedButton)
         {
-            RedButton->SetButtonEventData(finalQuestion->RedBtnEventTag, finalQuestion->RedBtnPayloadValue, finalQuestion->RedBtnPayloadString);
+            // 여기서 방금 뽑은 finalQuestion의 정보를 4개 다 넘겨줌!
+            RedButton->SetButtonEventData(finalQuestion->QuestionID, finalQuestion->RedBtnEventTag, finalQuestion->RedBtnPayloadValue, finalQuestion->RedBtnPayloadString);
         }
 
         if (BlueButton)
         {
-            BlueButton->SetButtonEventData(finalQuestion->BlueBtnEventTag, finalQuestion->BlueBtnPayloadValue, finalQuestion->BlueBtnPayloadString);
+            // 파란 버튼도 마찬가지!
+            BlueButton->SetButtonEventData(finalQuestion->QuestionID, finalQuestion->BlueBtnEventTag, finalQuestion->BlueBtnPayloadValue, finalQuestion->BlueBtnPayloadString);
         }
     }
 }
 
-void AOecTerminalBase::BeginPlay()
-{
-	Super::BeginPlay();
-
-    InitializeTerminal();
-	
-}
 
 // Called every frame
 void AOecTerminalBase::Tick(float DeltaTime)

@@ -22,6 +22,10 @@ struct FQuestionStaticData : public FTableRowBase
     GENERATED_BODY()
 
 public:
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName QuestionID;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     EQuestionType QuestionType;
 
@@ -197,4 +201,21 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 Quantity = 0; // 몇 개인가?
+};
+
+/*
+===========================================================================
+선택기록 데이터
+===========================================================================
+*/
+USTRUCT(BlueprintType)
+struct FChoiceRecord
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    FGameplayTag SelectedTag; // 어떤 결과를 선택했나?
+
+    UPROPERTY()
+    float Value; // 수치는 얼마였나?
 };

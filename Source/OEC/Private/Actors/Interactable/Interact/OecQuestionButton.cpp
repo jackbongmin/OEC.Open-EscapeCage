@@ -10,10 +10,16 @@ void AOecQuestionButton::Interact_Implementation(AActor* InInteractor)
 
     PlayButtonPressFeedback();
     TriggerButtonEvent();
+
+    if (OnButtonClicked.IsBound())
+    {
+        OnButtonClicked.Broadcast();
+    }
 }
 
-void AOecQuestionButton::SetButtonEventData(FGameplayTag InTag, float InPayloadValue, FName InPayloadString)
+void AOecQuestionButton::SetButtonEventData(FName InQuestionID, FGameplayTag InTag, float InPayloadValue, FName InPayloadString)
 {
+    QuestionID = InQuestionID;
     EventTag = InTag;
     PayloadValue = InPayloadValue;
     PayloadString = InPayloadString;
@@ -30,6 +36,6 @@ void AOecQuestionButton::TriggerButtonEvent()
 {
     if (UOecEventSubsystem* eventSubsystem = GetGameInstance()->GetSubsystem<UOecEventSubsystem>())
     {
-        eventSubsystem->ProcessQuestionResult(EventTag, PayloadValue, PayloadString);
+        eventSubsystem->ProcessQuestionResult(QuestionID, EventTag, PayloadValue, PayloadString);
     }
 }

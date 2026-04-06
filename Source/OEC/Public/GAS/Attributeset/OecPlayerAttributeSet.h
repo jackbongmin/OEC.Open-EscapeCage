@@ -19,4 +19,7 @@ public:
     FGameplayAttributeData Sanity;
     ATTRIBUTE_ACCESSORS(UOecPlayerAttributeSet, Sanity)
 
+    UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+    FGameplayAttributeData AnswerCount;
+    ATTRIBUTE_ACCESSORS(UOecPlayerAttributeSet, AnswerCount)
 };
