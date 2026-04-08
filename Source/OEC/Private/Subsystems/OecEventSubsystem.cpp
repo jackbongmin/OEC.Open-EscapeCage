@@ -20,6 +20,12 @@ void UOecEventSubsystem::ProcessQuestionResult(FName InQuestionID, FGameplayTag 
 	UE_LOG(LogTemp, Log, TEXT("질문 ID [%s] 처리 완료 누적 답변 횟수: %d"), *InQuestionID.ToString(), UsedQuestionIDs.Num());
 
 	RecordChoice(InTag, InValue);
+
+	if (InTag == FGameplayTag::RequestGameplayTag(FName("Event.Stack.Add")))
+	{
+		ModifyStacks((int32)InValue);
+	}
+
 }
 
 bool UOecEventSubsystem::IsQuestionUsed(FName InQuestionID) const
@@ -31,6 +37,15 @@ void UOecEventSubsystem::ResetUsedQuestions()
 {
     UsedQuestionIDs.Empty();
     UE_LOG(LogTemp, Log, TEXT("모든 질문을 소진하여 리스트를 리셋합니다"));
+}
+
+void UOecEventSubsystem::ModifyStacks(int32 InAmount)
+{
+	PlayerStacks += InAmount;
+
+	if (PlayerStacks < 0) PlayerStacks = 0;
+
+	UE_LOG(LogTemp, Log, TEXT("현재 스택: %d"), PlayerStacks);
 }
 
 void UOecEventSubsystem::RecordChoice(FGameplayTag InTag, float InValue)

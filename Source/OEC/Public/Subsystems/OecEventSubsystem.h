@@ -27,9 +27,18 @@ public:
 
 	void ResetUsedQuestions();
 
+	UFUNCTION(BlueprintCallable, Category = "OEC|Stack")
+	int32 GetCurrentStacks() const { return PlayerStacks; }
+
+	UFUNCTION(BlueprintCallable, Category = "OEC|Stack")
+	void ModifyStacks(int32 InAmount);
+
 private:
 	UPROPERTY()
 	TArray<FChoiceRecord> ChoiceHistory;
+
+	UPROPERTY()
+	int32 PlayerStacks = 0;;
 
 	void RecordChoice(FGameplayTag InTag, float InValue);
 

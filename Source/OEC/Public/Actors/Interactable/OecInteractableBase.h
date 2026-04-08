@@ -7,6 +7,9 @@
 #include "Interfaces/OecInteractableInterface.h"
 #include "OecInteractableBase.generated.h"
 
+class UStaticMeshComponent;
+class UWidgetComponent;
+
 UCLASS()
 class OEC_API AOecInteractableBase : public AActor, public IOecInteractableInterface
 {
@@ -15,10 +18,16 @@ class OEC_API AOecInteractableBase : public AActor, public IOecInteractableInter
 public:
     AOecInteractableBase();
 
+    UFUNCTION(BlueprintCallable, Category = "OEC|Interaction")
+    virtual void SetInteractPromptVisible(bool bInVisible);
+
     virtual void Interact_Implementation(AActor* InInteractor) override;
 
 protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "OEC|Components")
     UStaticMeshComponent* MeshComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "OEC|Components")
+    UWidgetComponent* InteractPromptWidget;
 };

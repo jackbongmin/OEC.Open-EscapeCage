@@ -36,6 +36,8 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OEC|Event Data")
     FName QuestionID;
 
+    UPROPERTY(EditAnywhere, Category = "OEC|Event")
+    bool bIsTerminalButton = true;
 
 public:
     UPROPERTY(BlueprintAssignable, Category = "OEC|Event")

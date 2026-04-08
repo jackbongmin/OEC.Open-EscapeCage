@@ -49,3 +49,10 @@ enum class EOecGamePhase : uint8
     Phase1_MainRoom     UMETA(DisplayName = "페이즈 1: 메인 방"),
     Phase2_Corridor     UMETA(DisplayName = "페이즈 2: 복도 탐색")
 };
+
+UENUM(BlueprintType)
+enum class EDoorType : uint8
+{
+    MainDoor    UMETA(DisplayName = "메인 문"),
+    RandomDoor  UMETA(DisplayName = "랜덤방 문")
+};

@@ -23,4 +23,11 @@ protected:
     // 상호작용 가능한 최대 사거리
     UPROPERTY(EditAnywhere, Category = "OEC|Interaction")
     float InteractRange = 200.f;
+
+protected:
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+private:
+    UPROPERTY()
+    class AOecInteractableBase* CurrentTarget;
 };

@@ -2,6 +2,8 @@
 
 
 #include "Actors/Interactable/OecInteractableBase.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 AOecInteractableBase::AOecInteractableBase()
@@ -12,9 +14,25 @@ AOecInteractableBase::AOecInteractableBase()
     MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
     RootComponent = MeshComponent;
 
-    // 레이저(LineTrace)에 맞을 수 있도록 콜리전 세팅 (ECC_Visibility 채널에 반응)
     MeshComponent->SetCollisionObjectType(ECC_WorldDynamic);
     MeshComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+
+    InteractPromptWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractPromptWidget"));
+    InteractPromptWidget->SetupAttachment(RootComponent);
+
+    InteractPromptWidget->SetWidgetSpace(EWidgetSpace::Screen);
+    InteractPromptWidget->SetDrawSize(FVector2D(200.0f, 50.0f));
+
+    InteractPromptWidget->SetVisibility(false);
+
+}
+
+void AOecInteractableBase::SetInteractPromptVisible(bool bInVisible)
+{
+    if (InteractPromptWidget)
+    {
+		InteractPromptWidget->SetVisibility(bInVisible);
+    }
 }
 
 void AOecInteractableBase::Interact_Implementation(AActor* InInteractor)

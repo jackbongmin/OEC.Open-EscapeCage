@@ -34,6 +34,12 @@ void AOecQuestionButton::PlayButtonPressFeedback()
 
 void AOecQuestionButton::TriggerButtonEvent()
 {
+    if (!bIsTerminalButton)
+    {
+        UE_LOG(LogTemp, Log, TEXT("일반 상호작용 버튼입니다. 스택 로직을 무시합니다."));
+        return;
+    }
+
     if (UOecEventSubsystem* eventSubsystem = GetGameInstance()->GetSubsystem<UOecEventSubsystem>())
     {
         eventSubsystem->ProcessQuestionResult(QuestionID, EventTag, PayloadValue, PayloadString);
