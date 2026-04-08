@@ -38,7 +38,7 @@ private:
 	TArray<FChoiceRecord> ChoiceHistory;
 
 	UPROPERTY()
-	int32 PlayerStacks = 0;;
+	int32 PlayerStacks = 3;
 
 	void RecordChoice(FGameplayTag InTag, float InValue);
 

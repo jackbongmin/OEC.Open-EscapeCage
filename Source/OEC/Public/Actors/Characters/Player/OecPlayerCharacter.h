@@ -55,5 +55,23 @@ private:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OEC|Input", meta = (AllowPrivateAccess = "true"))
     UInputAction* InteractAction;
 
+public:
+    void ExecuteQuickSlot(int32 InSlotIndex);
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OEC|Input")
+    UInputAction* QuickSlot1Action;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OEC|Input")
+    UInputAction* QuickSlot2Action;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OEC|Input")
+    UInputAction* QuickSlot3Action;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OEC|Input")
+    UInputAction* QuickSlot4Action;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OEC|Input")
+    UInputAction* QuickSlot5Action;
+
 
 };
