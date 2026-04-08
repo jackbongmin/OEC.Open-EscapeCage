@@ -3,18 +3,19 @@
 
 #include "Core/OecHUD.h"
 #include "UI/Ingame/OecQuickSlotPanelWidget.h"
+#include "UI/Ingame/OecInGameWidget.h"
 #include "Blueprint/UserWidget.h"
 
 void AOecHUD::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (QuickSlotPanelClass)
-    {
-        QuickSlotPanel = CreateWidget<UOecQuickSlotPanelWidget>(GetWorld(), QuickSlotPanelClass);
-        if (QuickSlotPanel)
-        {
-            QuickSlotPanel->AddToViewport();
-        }
-    }
+	if (InGameWidgetClass)
+	{
+		InGameWidget = CreateWidget<UOecInGameWidget>(GetWorld(), InGameWidgetClass);
+		if (InGameWidget)
+		{
+			InGameWidget->AddToViewport();
+		}
+	}
 }

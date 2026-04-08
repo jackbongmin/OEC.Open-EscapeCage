@@ -9,8 +9,7 @@
 /**
  * 
  */
-
-class UOecQuickSlotPanelWidget;
+class UOecInGameWidget;
 
 UCLASS()
 class OEC_API AOecHUD : public AHUD
@@ -20,10 +19,13 @@ class OEC_API AOecHUD : public AHUD
 public:
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable, Category = "OEC|UI")
+	UOecInGameWidget* GetInGameWidget() const { return InGameWidget; }
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "OEC|UI")
-	TSubclassOf<UOecQuickSlotPanelWidget> QuickSlotPanelClass;
+	TSubclassOf<UOecInGameWidget> InGameWidgetClass;
 
 	UPROPERTY()
-	UOecQuickSlotPanelWidget* QuickSlotPanel;
+	UOecInGameWidget* InGameWidget;
 };
