@@ -33,6 +33,8 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void Interact();
 
+	void ToggleInventory();
+
 private:
     // 1인칭 카메라
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "OEC|Camera", meta = (AllowPrivateAccess = "true"))
@@ -55,8 +57,12 @@ private:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OEC|Input", meta = (AllowPrivateAccess = "true"))
     UInputAction* InteractAction;
 
+
 public:
     void ExecuteQuickSlot(int32 InSlotIndex);
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OEC|Input")
+    UInputAction* ToggleInventoryAction;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OEC|Input")
     UInputAction* QuickSlot1Action;

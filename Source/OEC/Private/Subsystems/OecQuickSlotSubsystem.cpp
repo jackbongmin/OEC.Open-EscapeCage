@@ -11,6 +11,12 @@ void UOecQuickSlotSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 void UOecQuickSlotSubsystem::assignQuickSlot(int32 InSlotIndex, FName InItemID)
 {
+	const int32* existingSlot = QuickSlots.FindKey(InItemID);
+
+	if(existingSlot && *existingSlot != InSlotIndex)
+	{
+		QuickSlots.Remove(*existingSlot);
+	}
 	QuickSlots.Add(InSlotIndex, InItemID);
 	OnQuickSlotUpdated.Broadcast();
 }

@@ -17,12 +17,18 @@ void AOecPlayerController::SetUIInputMode(bool InIsUIOnly)
 		inputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 		SetInputMode(inputMode);
 		bShowMouseCursor = true;
+
+		SetIgnoreLookInput(true);
+		SetIgnoreMoveInput(true);
 	}
 	else
 	{
 		FInputModeGameOnly inputMode;
 		SetInputMode(inputMode);
 		bShowMouseCursor = false;
+
+		ResetIgnoreLookInput();
+		ResetIgnoreMoveInput();
 	}
 }
 

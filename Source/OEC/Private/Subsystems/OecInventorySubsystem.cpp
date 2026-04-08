@@ -8,6 +8,7 @@ void UOecInventorySubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 {
 	Super::Initialize(InCollection);
 	InventorySlots.Empty();
+	InventorySlots.SetNum(MaxSlotCount);
 }
 
 bool UOecInventorySubsystem::TryAddItem(FName InItemCode, int32 InCount)
@@ -31,16 +32,15 @@ bool UOecInventorySubsystem::TryAddItem(FName InItemCode, int32 InCount)
 		}
 	}
 
-	// 새로운 아이템 추가
-	if (InventorySlots.Num() < MaxSlotCount)
+	for (FInventorySlot& slot : InventorySlots)
 	{
-		FInventorySlot newSlot;
-		newSlot.ItemCode = InItemCode;
-		newSlot.Quantity = InCount;
-		InventorySlots.Add(newSlot);
-
-		OnInventoryUpdated.Broadcast();
-		return true;
+		if (slot.ItemCode == NAME_None)
+		{
+			slot.ItemCode = InItemCode;
+			slot.Quantity = InCount;
+			OnInventoryUpdated.Broadcast();
+			return true;
+		}
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("인벤토리가 가득 찼습니다!"));
@@ -49,19 +49,37 @@ bool UOecInventorySubsystem::TryAddItem(FName InItemCode, int32 InCount)
 
 void UOecInventorySubsystem::RemoveItem(FName InItemCode, int32 InCount)
 {
-	for (int32 i = 0; i < InventorySlots.Num(); i++)
+	for (FInventorySlot& slot : InventorySlots)
 	{
-		if (InventorySlots[i].ItemCode == InItemCode)
+		if (slot.ItemCode == InItemCode)
 		{
-			InventorySlots[i].Quantity -= InCount;
-			// 수량이 0 이하면 슬롯 삭제
-			if (InventorySlots[i].Quantity <= 0)
+			slot.Quantity -= InCount;
+
+			if (slot.Quantity <= 0)
 			{
-				InventorySlots.RemoveAt(i);
+				slot.ItemCode = NAME_None;
+				slot.Quantity = 0;
 			}
 
 			OnInventoryUpdated.Broadcast();
 			return;
 		}
 	}
+}
+
+void UOecInventorySubsystem::SwapSlot(int32 InSourceIndex, int32 InDestinationIndex)
+{
+	// 인덱스가 정상적인 범위인지 확인
+	if (!InventorySlots.IsValidIndex(InSourceIndex) || !InventorySlots.IsValidIndex(InDestinationIndex)) return;
+
+	// 자기 자신에게 드롭한 거면 무시
+	if (InSourceIndex == InDestinationIndex) return;
+
+	// 데이터 맞교환 (Swap)
+	FInventorySlot tempSlot = InventorySlots[InSourceIndex];
+	InventorySlots[InSourceIndex] = InventorySlots[InDestinationIndex];
+	InventorySlots[InDestinationIndex] = tempSlot;
+
+	// UI 갱신 방송 쏘기!
+	OnInventoryUpdated.Broadcast();
 }

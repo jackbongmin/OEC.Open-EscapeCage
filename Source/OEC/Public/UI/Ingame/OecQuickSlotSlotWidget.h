@@ -25,6 +25,12 @@ public:
 
 protected:
 	virtual void NativeOnInitialized() override;
+	virtual bool NativeOnDrop(const FGeometry& InMyGeometry, const FDragDropEvent& InDragDropEvent, class UDragDropOperation* InOperation) override;
+
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual void NativeOnDragDetected(const FGeometry& InMyGeometry, const FPointerEvent& InPointerEvent, UDragDropOperation*& OutOperation) override;
+
+	virtual void NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* ItemIcon;
@@ -33,4 +39,6 @@ protected:
 	UTextBlock* SlotIndexText;
 
 	int32 SlotIndex;
+
+	FName CurrentItemCode;
 };

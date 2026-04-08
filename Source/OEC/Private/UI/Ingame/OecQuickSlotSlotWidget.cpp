@@ -4,7 +4,12 @@
 #include "UI/Ingame/OecQuickSlotSlotWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+
 #include "Subsystems/OecGameDataSubsystem.h"
+#include "Subsystems/OecInventorySubsystem.h"
+#include "Subsystems/OecQuickSlotSubsystem.h"
+
+#include "System/OecItemDragDropOperation.h"
 
 void UOecQuickSlotSlotWidget::NativeOnInitialized()
 {
@@ -12,6 +17,97 @@ void UOecQuickSlotSlotWidget::NativeOnInitialized()
 	if (ItemIcon)
 	{
 		ItemIcon->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+bool UOecQuickSlotSlotWidget::NativeOnDrop(const FGeometry& InMyGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+{
+	Super::NativeOnDrop(InMyGeometry, InDragDropEvent, InOperation);
+
+	UOecItemDragDropOperation* itemOp = Cast<UOecItemDragDropOperation>(InOperation);
+
+
+	if (itemOp)
+	{
+		UOecQuickSlotSubsystem* quickSub = GetGameInstance()->GetSubsystem<UOecQuickSlotSubsystem>();
+		if (quickSub)
+		{
+			quickSub->assignQuickSlot(SlotIndex, itemOp->ItemCode);
+
+			if (UOecInventorySubsystem* invenSub = GetGameInstance()->GetSubsystem<UOecInventorySubsystem>())
+			{
+				invenSub->OnInventoryUpdated.Broadcast();
+			}
+
+			return true;
+		}
+	}
+
+	//if (itemOp && itemOp->bFromInventory)
+	//{
+	//	UOecQuickSlotSubsystem* quickSub = GetGameInstance()->GetSubsystem<UOecQuickSlotSubsystem>();
+	//	if (quickSub)
+	//	{
+	//		// 퀵슬롯 서브시스템한테 "내 번호(SlotIndex)에 이 아이템 꽂아줘!" 라고 명령
+	//		quickSub->assignQuickSlot(SlotIndex, itemOp->ItemCode);
+	//		if (UOecInventorySubsystem* invenSub = GetGameInstance()->GetSubsystem<UOecInventorySubsystem>())
+	//		{
+	//			invenSub->OnInventoryUpdated.Broadcast();
+	//		}
+
+	//		return true; // 드롭 성공!
+	//	}
+	//}
+	return false;
+}
+FReply UOecQuickSlotSlotWidget::NativeOnMouseButtonDown(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent)
+{
+	FReply reply = Super::NativeOnMouseButtonDown(InMyGeometry, InMouseEvent);
+
+	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && CurrentItemCode != NAME_None)
+	{
+		return FReply::Handled().DetectDrag(GetCachedWidget().ToSharedRef(), EKeys::LeftMouseButton);
+	}
+	return reply;
+}
+void UOecQuickSlotSlotWidget::NativeOnDragDetected(const FGeometry& InMyGeometry, const FPointerEvent& InPointerEvent, UDragDropOperation*& OutOperation)
+{
+	Super::NativeOnDragDetected(InMyGeometry, InPointerEvent, OutOperation);
+
+	UOecItemDragDropOperation* dragOp = NewObject<UOecItemDragDropOperation>();
+	dragOp->ItemCode = CurrentItemCode;
+	dragOp->SourceSlotIndex = SlotIndex;
+	dragOp->bFromInventory = false;
+
+	UOecGameDataSubsystem* dataSub = GetGameInstance()->GetSubsystem<UOecGameDataSubsystem>();
+	if (dataSub)
+	{
+		const FItemStaticData* itemData = dataSub->GetItemData(CurrentItemCode);
+		if (itemData && itemData->ItemIcon)
+		{
+			UImage* DragVisual = NewObject<UImage>();
+			FSlateBrush Brush;
+			Brush.SetResourceObject(itemData->ItemIcon);
+			Brush.ImageSize = FVector2D(80.f, 80.f);
+			DragVisual->SetBrush(Brush);
+
+			dragOp->DefaultDragVisual = DragVisual;
+			dragOp->Pivot = EDragPivot::CenterCenter;
+		}
+	}
+
+	OutOperation = dragOp;
+
+
+	if (ItemIcon) ItemIcon->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 0.3f));
+}
+
+void UOecQuickSlotSlotWidget::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+{
+	Super::NativeOnDragCancelled(InDragDropEvent, InOperation);
+
+	if (ItemIcon)
+	{
+		ItemIcon->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 1.f));
 	}
 }
 void UOecQuickSlotSlotWidget::InitSlot(int32 InSlotIndex)
@@ -26,6 +122,8 @@ void UOecQuickSlotSlotWidget::InitSlot(int32 InSlotIndex)
 
 void UOecQuickSlotSlotWidget::RefreshSlot(FName InItemID)
 {
+	CurrentItemCode = InItemID;
+
 	if (InItemID.IsNone())
 	{
 		if (ItemIcon)
@@ -39,14 +137,14 @@ void UOecQuickSlotSlotWidget::RefreshSlot(FName InItemID)
 	{
 		const FItemStaticData* itemData = dataSub->GetItemData(InItemID);
 
-		// TODO: 데이터 테이블에 아이콘(Texture2D) 세팅이 완료되면 주석 풀고 사용!
-		/*
+		
 		if(itemData && itemData->ItemIcon)
 		{
 			ItemIcon->SetBrushFromTexture(itemData->ItemIcon);
+			ItemIcon->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 1.f));
 			ItemIcon->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 		}
-		*/
+		
 
 		// 임시로 작동 확인용 (아이템 있으면 보이게 처리)
 		if (ItemIcon) ItemIcon->SetVisibility(ESlateVisibility::SelfHitTestInvisible);

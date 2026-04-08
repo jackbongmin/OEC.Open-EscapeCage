@@ -10,6 +10,10 @@
 #include "Subsystems/OecQuickSlotSubsystem.h"
 #include "Subsystems/OecInventorySubsystem.h"
 #include "Subsystems/OecGameDataSubsystem.h"
+#include "Core/OecPlayerController.h"
+#include "Core/OecHUD.h"
+#include "UI/Ingame/OecInGameWidget.h"
+#include "UI/Ingame/OecInventoryPanelWidget.h"
 
 AOecPlayerCharacter::AOecPlayerCharacter()
 {
@@ -55,6 +59,10 @@ void AOecPlayerCharacter::SetupPlayerInputComponent(UInputComponent* InPlayerInp
             enhancedInputComponent->BindAction(QuickSlot4Action, ETriggerEvent::Started, this, &AOecPlayerCharacter::ExecuteQuickSlot, 4);
             enhancedInputComponent->BindAction(QuickSlot5Action, ETriggerEvent::Started, this, &AOecPlayerCharacter::ExecuteQuickSlot, 5);
         }
+        if (ToggleInventoryAction)
+        {
+            enhancedInputComponent->BindAction(ToggleInventoryAction, ETriggerEvent::Started, this, &AOecPlayerCharacter::ToggleInventory);
+        }
     }
 }
 
@@ -85,6 +93,34 @@ void AOecPlayerCharacter::Interact()
     if (InteractionComponent)
     {
         InteractionComponent->TryInteract();
+    }
+}
+
+void AOecPlayerCharacter::ToggleInventory()
+{
+    AOecPlayerController* pc = Cast<AOecPlayerController>(GetController());
+    if (!pc) return;
+
+    AOecHUD* hud = Cast<AOecHUD>(pc->GetHUD());
+    if (!hud || !hud->GetInGameWidget()) return;
+
+    // 최상위 위젯에서 인벤토리 패널을 가져옴
+    // (주의: InGameWidget 헤더에 GetInventoryPanel() 게터 함수를 하나 만들어둬야 해!)
+    UOecInventoryPanelWidget* invenPanel = hud->GetInGameWidget()->GetInventoryPanel();
+    if (!invenPanel) return;
+
+    // 현재 켜져 있는지 확인하고 반대로 뒤집기
+    bool bIsVisible = invenPanel->GetVisibility() == ESlateVisibility::Visible;
+
+    if (bIsVisible)
+    {
+        invenPanel->HideWidget(); // OecBaseWidget에 있는 숨기기 함수
+        pc->SetUIInputMode(false); // 네가 만든 컨트롤러 함수! (게임 모드, 마우스 숨김)
+    }
+    else
+    {
+        invenPanel->ShowWidget(); // 보여주기
+        pc->SetUIInputMode(true); // 네가 만든 컨트롤러 함수! (게임+UI 모드, 마우스 표시)
     }
 }
 

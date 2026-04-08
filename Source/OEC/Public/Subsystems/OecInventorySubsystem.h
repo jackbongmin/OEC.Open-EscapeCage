@@ -28,6 +28,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "OEC|Inventory")
     void RemoveItem(FName InItemCode, int32 InCount);
 
+    UFUNCTION(BlueprintCallable, Category = "OEC|Inventory")
+    void SwapSlot(int32 InSourceIndex, int32 InDestinationIndex);
+
     UFUNCTION(BlueprintPure, Category = "OEC|Inventory")
     const TArray<FInventorySlot>& GetSlots() const { return InventorySlots; }
 

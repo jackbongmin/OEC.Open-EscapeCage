@@ -107,6 +107,9 @@ struct FItemStaticData : public FTableRowBase
     UTexture2D* ItemIcon;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base")
+    FText ItemDescription;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base")
     EItemType ItemType;
 
     // 무기면 장착할 액터, 소모품이면 월드 효과용 액터
