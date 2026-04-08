@@ -3,6 +3,7 @@
 
 #include "Subsystems/OecGameDataSubsystem.h"
 #include "Settings/OecGameDataSettings.h"
+#include "UObject/ConstructorHelpers.h"
 
 void UOecGameDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {

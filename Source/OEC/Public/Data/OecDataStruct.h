@@ -94,34 +94,50 @@ struct FItemStaticData : public FTableRowBase
 {
     GENERATED_BODY()
 
-public:
-    // 아이템 기본 정보
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    /* ==========================================
+           공통 기본 정보 (항상 보임)
+        ========================================== */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base")
     FName ItemCode;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base")
     FString ItemName;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base")
+    UTexture2D* ItemIcon;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base")
     EItemType ItemType;
 
-    // 공통: 스폰할 액터 클래스 (무기면 장착용, 소모품이면 월드 드랍용)
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    // 무기면 장착할 액터, 소모품이면 월드 효과용 액터
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base")
     TSoftClassPtr<AActor> ItemActorClass;
 
-    // --- 무기 전용 수치 ---
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float Damage;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float AttackRange;
+    /* ==========================================
+       무기(Weapon) 전용 수치
+       (ItemType이 Weapon일 때만 에디터에 표시됨!)
+    ========================================== */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (EditCondition = "ItemType==EItemType::Weapon", EditConditionHides))
+    float Damage = 0.0f;
 
-    // --- 소모품 전용 수치 (GAS 활용) ---
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FGameplayTag EffectTag; // 어떤 버프를 줄지 (Heal, SpeedUp 등)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (EditCondition = "ItemType==EItemType::Weapon", EditConditionHides))
+    float AttackRange = 0.0f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float EffectValue;
+
+    /* ==========================================
+       소모품(Consumable) 전용 수치
+       (ItemType이 Consumable일 때만 에디터에 표시됨!)
+    ========================================== */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Consumable", meta = (EditCondition = "ItemType==EItemType::Consumable", EditConditionHides))
+    float HealthRestoreAmount = 0.0f; // 체력 회복량
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Consumable", meta = (EditCondition = "ItemType==EItemType::Consumable", EditConditionHides))
+    float SanityRestoreAmount = 0.0f; // 정신력 회복량
+
+    // 향후 GAS 연동을 위한 태그 (Heal, SpeedUp 등)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Consumable", meta = (EditCondition = "ItemType==EItemType::Consumable", EditConditionHides))
+    FGameplayTag EffectTag;
 };
 
 /*
