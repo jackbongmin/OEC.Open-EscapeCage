@@ -56,3 +56,12 @@ enum class EDoorType : uint8
     MainDoor    UMETA(DisplayName = "메인 문"),
     RandomDoor  UMETA(DisplayName = "랜덤방 문")
 };
+
+UENUM(BlueprintType)
+enum class EOecWeaponState : uint8
+{
+    None        UMETA(DisplayName = "맨손"),
+    Sword       UMETA(DisplayName = "검"),
+    Pistol      UMETA(DisplayName = "권총"),
+    Rifle       UMETA(DisplayName = "라이플")
+};

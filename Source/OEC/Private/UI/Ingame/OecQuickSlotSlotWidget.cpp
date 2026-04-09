@@ -42,21 +42,6 @@ bool UOecQuickSlotSlotWidget::NativeOnDrop(const FGeometry& InMyGeometry, const 
 		}
 	}
 
-	//if (itemOp && itemOp->bFromInventory)
-	//{
-	//	UOecQuickSlotSubsystem* quickSub = GetGameInstance()->GetSubsystem<UOecQuickSlotSubsystem>();
-	//	if (quickSub)
-	//	{
-	//		// 퀵슬롯 서브시스템한테 "내 번호(SlotIndex)에 이 아이템 꽂아줘!" 라고 명령
-	//		quickSub->assignQuickSlot(SlotIndex, itemOp->ItemCode);
-	//		if (UOecInventorySubsystem* invenSub = GetGameInstance()->GetSubsystem<UOecInventorySubsystem>())
-	//		{
-	//			invenSub->OnInventoryUpdated.Broadcast();
-	//		}
-
-	//		return true; // 드롭 성공!
-	//	}
-	//}
 	return false;
 }
 FReply UOecQuickSlotSlotWidget::NativeOnMouseButtonDown(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent)

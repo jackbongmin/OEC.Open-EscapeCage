@@ -15,6 +15,7 @@ class UOecInteractionComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+enum class EOecWeaponState : uint8;
 
 UCLASS()
 class OEC_API AOecPlayerCharacter : public AOecCharacterBase
@@ -79,5 +80,12 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OEC|Input")
     UInputAction* QuickSlot5Action;
 
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OEC|Weapon")
+    EOecWeaponState CurrentWeaponState = EOecWeaponState::None;
+
+    UFUNCTION(BlueprintCallable, Category = "OEC|Weapon")
+    void SetWeaponState(EOecWeaponState InNewState);
 
 };

@@ -14,6 +14,7 @@
 #include "Core/OecHUD.h"
 #include "UI/Ingame/OecInGameWidget.h"
 #include "UI/Ingame/OecInventoryPanelWidget.h"
+#include "Data/OecEnumType.h"
 
 AOecPlayerCharacter::AOecPlayerCharacter()
 {
@@ -149,4 +150,10 @@ void AOecPlayerCharacter::ExecuteQuickSlot(int32 InSlotIndex)
         // 다 썼으면 인벤토리에서 1개 빼기
         invenSub->RemoveItem(targetItemCode, 1);
     }
+}
+
+void AOecPlayerCharacter::SetWeaponState(EOecWeaponState InNewState)
+{
+    CurrentWeaponState = InNewState;
+    // TODO: 나중에 여기에 진짜 무기 액터를 스폰해서 손에 쥐여주는 코드를 넣어야함
 }
