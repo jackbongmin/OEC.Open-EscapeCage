@@ -16,6 +16,7 @@ class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 enum class EOecWeaponState : uint8;
+class UOecPlayerAttributeSet;
 
 UCLASS()
 class OEC_API AOecPlayerCharacter : public AOecCharacterBase
@@ -27,6 +28,8 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+    virtual void Tick(float InDeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	// Enhanced Input
@@ -36,7 +39,15 @@ protected:
 
 	void ToggleInventory();
 
-private:
+    void HandleStamina(float InDeltaTime);
+    void UpdateMovementSettings();
+
+public:
+    void OnSprintStarted();
+    void OnSprintCompleted();
+    void OnJumpAction();
+
+protected:
     // 1인칭 카메라
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "OEC|Camera", meta = (AllowPrivateAccess = "true"))
     UCameraComponent* FirstPersonCamera;
@@ -57,6 +68,13 @@ private:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OEC|Input", meta = (AllowPrivateAccess = "true"))
     UInputAction* InteractAction;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OEC|Input", meta = (AllowPrivateAccess = "true"))
+    UInputAction* SprintAction;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OEC|Input", meta = (AllowPrivateAccess = "true"))
+    UInputAction* JumpAction;
+
 
 
 public:
@@ -87,5 +105,14 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "OEC|Weapon")
     void SetWeaponState(EOecWeaponState InNewState);
+
+protected:
+    UPROPERTY()
+    TObjectPtr<UOecPlayerAttributeSet> PlayerAttributeSet;
+
+protected:
+    bool bIsSprinting = false;
+    bool bIsExhausted = false;
+    float RegenDelayTimer = 0.f;
 
 };

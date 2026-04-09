@@ -23,6 +23,9 @@ class OEC_API UOecAttributeSetBase : public UAttributeSet
 	GENERATED_BODY()
 	
 public:
+    UOecAttributeSetBase();
+
+public:
     UPROPERTY(BlueprintReadOnly, Category = "OEC|Attributes")
     FGameplayAttributeData Health;
     ATTRIBUTE_ACCESSORS(UOecAttributeSetBase, Health)
