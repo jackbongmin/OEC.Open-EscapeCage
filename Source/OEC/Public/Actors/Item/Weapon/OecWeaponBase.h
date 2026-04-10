@@ -46,6 +46,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "OEC|Weapon")
 	virtual void StopAttack();
 
+	UFUNCTION(BlueprintCallable, Category = "OEC|Weapon")
+	USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "OEC|Weapon|Sockets")
 	FName LeftGripSocketName = TEXT("Grip");
