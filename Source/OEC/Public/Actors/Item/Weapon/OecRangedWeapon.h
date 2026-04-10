@@ -82,4 +82,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OEC|Weapon|Effects")
 	TObjectPtr<UNiagaraSystem> TracerFX;
 
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "OEC|Feedback")
+	TSubclassOf<class UCameraShakeBase> FireCameraShakeClass;
+
 };

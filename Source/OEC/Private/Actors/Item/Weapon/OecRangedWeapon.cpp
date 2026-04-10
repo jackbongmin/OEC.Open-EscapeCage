@@ -142,6 +142,10 @@ void AOecRangedWeapon::Fire()
 			}
 		}
 	}
+	if (pc && FireCameraShakeClass)
+	{
+		pc->ClientStartCameraShake(FireCameraShakeClass);
+	}
 }
 
 void AOecRangedWeapon::Reload()
