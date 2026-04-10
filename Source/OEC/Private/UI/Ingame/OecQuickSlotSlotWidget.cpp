@@ -18,6 +18,11 @@ void UOecQuickSlotSlotWidget::NativeOnInitialized()
 	{
 		ItemIcon->SetVisibility(ESlateVisibility::Hidden);
 	}
+
+	if (UOecInventorySubsystem* invenSub = GetGameInstance()->GetSubsystem<UOecInventorySubsystem>())
+	{
+		invenSub->OnInventoryUpdated.AddDynamic(this, &UOecQuickSlotSlotWidget::HandleInventoryUpdate);
+	}
 }
 bool UOecQuickSlotSlotWidget::NativeOnDrop(const FGeometry& InMyGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
@@ -95,6 +100,10 @@ void UOecQuickSlotSlotWidget::NativeOnDragCancelled(const FDragDropEvent& InDrag
 		ItemIcon->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 1.f));
 	}
 }
+void UOecQuickSlotSlotWidget::HandleInventoryUpdate()
+{
+	RefreshSlot(CurrentItemCode);
+}
 void UOecQuickSlotSlotWidget::InitSlot(int32 InSlotIndex)
 {
 	SlotIndex = InSlotIndex;
@@ -117,6 +126,16 @@ void UOecQuickSlotSlotWidget::RefreshSlot(FName InItemID)
 			return;
 		}
 	}
+
+	UOecInventorySubsystem* invenSub = GetGameInstance()->GetSubsystem<UOecInventorySubsystem>();
+	int32 currentCount = invenSub ? invenSub->GetItemQuantity(InItemID) : 0;
+
+	if (currentCount <= 0)
+	{
+		if (ItemIcon) ItemIcon->SetVisibility(ESlateVisibility::Hidden);
+		return; 
+	}
+
 	UOecGameDataSubsystem* dataSub = GetGameInstance()->GetSubsystem<UOecGameDataSubsystem>();
 	if (dataSub)
 	{

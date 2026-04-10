@@ -83,3 +83,15 @@ void UOecInventorySubsystem::SwapSlot(int32 InSourceIndex, int32 InDestinationIn
 	// UI 갱신 방송 쏘기!
 	OnInventoryUpdated.Broadcast();
 }
+
+int32 UOecInventorySubsystem::GetItemQuantity(FName InItemCode) const
+{
+	for (const FInventorySlot& slot : InventorySlots)
+	{
+		if (slot.ItemCode == InItemCode)
+		{
+			return slot.Quantity;
+		}
+	}
+	return 0;
+}

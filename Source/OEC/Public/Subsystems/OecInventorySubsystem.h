@@ -42,4 +42,8 @@ private:
     TArray<FInventorySlot> InventorySlots;
 
     int32 MaxSlotCount = 20;
+
+public:
+    UFUNCTION(BlueprintCallable, Category = "OEC|Inventory")
+    int32 GetItemQuantity(FName InItemCode) const;
 };

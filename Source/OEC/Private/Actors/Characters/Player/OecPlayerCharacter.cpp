@@ -349,6 +349,16 @@ void AOecPlayerCharacter::ExecuteQuickSlot(int32 InSlotIndex)
     FName targetItemCode = quickSlotSub->GetItemAtSlot(InSlotIndex);
     if (targetItemCode == NAME_None) return;
 
+    int32 currentItemCount = invenSub->GetItemQuantity(targetItemCode);
+
+    if (currentItemCount <= 0)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("❌ 삐빅! 인벤토리에 아이템이 없습니다! (개수: 0)"));
+
+        quickSlotSub->assignQuickSlot(InSlotIndex, NAME_None);
+
+        return; 
+    }
 
     // 데이터 테이블에서 상세 정보 찾기
     const FItemStaticData* itemData = dataSub->GetItemData(targetItemCode);

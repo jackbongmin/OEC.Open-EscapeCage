@@ -32,6 +32,9 @@ protected:
 
 	virtual void NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 
+	UFUNCTION()
+	void HandleInventoryUpdate();
+
 	UPROPERTY(meta = (BindWidget))
 	UImage* ItemIcon;
 
