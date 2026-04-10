@@ -19,6 +19,9 @@
 #include "GAS/Attributeset/OecPlayerAttributeSet.h"
 #include "AbilitySystemComponent.h"
 
+#include "Actors/Item/Weapon/OecWeaponBase.h"
+#include "Data/OecDataStruct.h"
+
 AOecPlayerCharacter::AOecPlayerCharacter()
 {
     PrimaryActorTick.bCanEverTick = true;
@@ -251,8 +254,39 @@ void AOecPlayerCharacter::ExecuteQuickSlot(int32 InSlotIndex)
     }
 }
 
-void AOecPlayerCharacter::SetWeaponState(EOecWeaponState InNewState)
+void AOecPlayerCharacter::SetWeaponState(EOecWeaponState InNewState, FName InItemCode)
 {
     CurrentWeaponState = InNewState;
-    // TODO: 나중에 여기에 진짜 무기 액터를 스폰해서 손에 쥐여주는 코드를 넣어야함
+    
+     //1. 기존에 들고 있던 무기가 있다면 파괴 (또는 풀링 반납)
+     if (CurrentWeaponActor) CurrentWeaponActor->Destroy();
+
+    // 2. 맨손이면 여기서 종료
+    if (CurrentWeaponState == EOecWeaponState::None || InItemCode == NAME_None) return;
+
+    // 3. 게임 데이터 서브시스템에서 아이템 정보(데이터 테이블) 긁어오기
+    UOecGameDataSubsystem* dataSub = GetGameInstance()->GetSubsystem<UOecGameDataSubsystem>();
+    if (!dataSub) return;
+
+    const FItemStaticData* itemData = dataSub->GetItemData(InItemCode);
+    if (!itemData || !itemData->ItemActorClass.LoadSynchronous()) return;
+
+    // 4. 진짜 무기 액터 스폰!
+    FActorSpawnParameters spawnParams;
+    spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+    AOecWeaponBase* spawnedWeapon = GetWorld()->SpawnActor<AOecWeaponBase>(itemData->ItemActorClass.LoadSynchronous(), GetActorLocation(), GetActorRotation(), spawnParams);
+
+    if (spawnedWeapon)
+    {
+        // 5. 💡 대망의 데이터 주입!! (여기서 데미지, 탄창 등이 총으로 들어감)
+        spawnedWeapon->InitWeaponData(*itemData);
+
+        // 6. 플레이어 손(WeaponSocket)에 부착!
+        spawnedWeapon->Equip(this, TEXT("WeaponSocket")); // 마네킹 손의 소켓 이름 확인 필수!
+
+        // 들고 있는 무기를 변수로 기억해두기 (나중에 공격할 때 써야 함)
+        CurrentWeaponActor = spawnedWeapon; 
+    }
+
 }

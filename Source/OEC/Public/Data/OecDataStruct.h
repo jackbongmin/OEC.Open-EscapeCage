@@ -127,6 +127,15 @@ struct FItemStaticData : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (EditCondition = "ItemType==EItemType::Weapon", EditConditionHides))
     float AttackRange = 0.0f;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (EditCondition = "ItemType==EItemType::Weapon", EditConditionHides))
+    int32 ClipSize = 30;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (EditCondition = "ItemType==EItemType::Weapon", EditConditionHides))
+    FName UseAmmoItemCode; 
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (EditCondition = "ItemType==EItemType::Weapon", EditConditionHides))
+    UAnimMontage* FireMontage; 
+
 
     /* ==========================================
        소모품(Consumable) 전용 수치

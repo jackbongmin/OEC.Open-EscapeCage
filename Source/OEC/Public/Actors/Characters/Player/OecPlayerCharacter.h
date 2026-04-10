@@ -103,8 +103,11 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OEC|Weapon")
     EOecWeaponState CurrentWeaponState = EOecWeaponState::None;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "OEC|Weapon")
+    TObjectPtr<class AOecWeaponBase> CurrentWeaponActor;
+
     UFUNCTION(BlueprintCallable, Category = "OEC|Weapon")
-    void SetWeaponState(EOecWeaponState InNewState);
+    void SetWeaponState(EOecWeaponState InNewState, FName InItemCode);
 
 protected:
     UPROPERTY()
