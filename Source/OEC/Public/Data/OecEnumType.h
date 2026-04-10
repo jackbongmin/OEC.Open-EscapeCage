@@ -65,3 +65,17 @@ enum class EOecWeaponState : uint8
     Pistol      UMETA(DisplayName = "권총"),
     Rifle       UMETA(DisplayName = "라이플")
 };
+
+UENUM(BlueprintType)
+enum class EOecAbilityInputID : uint8
+{
+    None = 0,
+    Confirm,
+    Cancel,
+    Fire,
+    Aim,
+    Reload,
+    Sprint,
+    Jump,
+    ItemUse
+};

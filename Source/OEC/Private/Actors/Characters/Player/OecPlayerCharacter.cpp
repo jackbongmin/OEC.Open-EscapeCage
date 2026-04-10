@@ -299,6 +299,10 @@ void AOecPlayerCharacter::OnFireStarted()
             }
         }
     }
+    if (UAbilitySystemComponent* asc = GetAbilitySystemComponent())
+    {
+        asc->AbilityLocalInputPressed(static_cast<int32>(EOecAbilityInputID::Fire));
+    }
 }
 
 void AOecPlayerCharacter::OnFireCompleted()
@@ -306,6 +310,10 @@ void AOecPlayerCharacter::OnFireCompleted()
     if (CurrentWeaponActor)
     {
         CurrentWeaponActor->StopAttack();
+    }
+    if (UAbilitySystemComponent* asc = GetAbilitySystemComponent())
+    {
+        asc->AbilityLocalInputReleased(static_cast<int32>(EOecAbilityInputID::Fire));
     }
 }
 
