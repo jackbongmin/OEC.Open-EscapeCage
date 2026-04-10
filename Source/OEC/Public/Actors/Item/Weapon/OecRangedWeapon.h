@@ -10,7 +10,7 @@
  * 
  */
 
-class UParticleSystem;
+class UNiagaraSystem;
 class USoundBase;
 
 UCLASS()
@@ -46,10 +46,10 @@ protected:
 	   VFX (시각 효과) & SFX (사운드)
 	========================================== */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OEC|Weapon|Effects")
-	TObjectPtr<UParticleSystem> MuzzleFlashFX; // 총구 불꽃
+	TObjectPtr<UNiagaraSystem> MuzzleFlashFX;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OEC|Weapon|Effects")
-	TObjectPtr<UParticleSystem> ImpactFX; // 벽/적 피격 스파크
+	TObjectPtr<UNiagaraSystem> ImpactFX; // 벽/적 피격 스파크
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OEC|Weapon|Effects")
 	TObjectPtr<USoundBase> FireSound; // 탕! 소리
@@ -74,4 +74,7 @@ public:
 	// 정조준 (마우스 우클릭)
 	UFUNCTION(BlueprintCallable, Category = "OEC|Weapon|Ranged")
 	virtual void Zoom(bool bInIsZooming);
+
+
+
 };

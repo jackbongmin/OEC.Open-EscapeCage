@@ -136,6 +136,8 @@ struct FItemStaticData : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (EditCondition = "ItemType==EItemType::Weapon", EditConditionHides))
     UAnimMontage* FireMontage; 
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (EditCondition = "ItemType==EItemType::Weapon", EditConditionHides))
+    EOecWeaponState WeaponAnimState = EOecWeaponState::None;
 
     /* ==========================================
        소모품(Consumable) 전용 수치

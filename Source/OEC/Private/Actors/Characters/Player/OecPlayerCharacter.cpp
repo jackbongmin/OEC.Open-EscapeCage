@@ -91,6 +91,11 @@ void AOecPlayerCharacter::SetupPlayerInputComponent(UInputComponent* InPlayerInp
         {
             enhancedInputComponent->BindAction(ToggleInventoryAction, ETriggerEvent::Started, this, &AOecPlayerCharacter::ToggleInventory);
         }
+        if (FireAction)
+        {
+            enhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &AOecPlayerCharacter::OnFireStarted);
+            enhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &AOecPlayerCharacter::OnFireCompleted);
+        }
     }
 }
 
@@ -227,6 +232,22 @@ void AOecPlayerCharacter::OnJumpAction()
 	Jump();
 }
 
+void AOecPlayerCharacter::OnFireStarted()
+{
+    if (CurrentWeaponActor)
+    {
+        CurrentWeaponActor->StartAttack();
+    }
+}
+
+void AOecPlayerCharacter::OnFireCompleted()
+{
+    if (CurrentWeaponActor)
+    {
+        CurrentWeaponActor->StopAttack();
+    }
+}
+
 void AOecPlayerCharacter::ExecuteQuickSlot(int32 InSlotIndex)
 {
     UOecQuickSlotSubsystem* quickSlotSub = GetGameInstance()->GetSubsystem<UOecQuickSlotSubsystem>();
@@ -235,58 +256,96 @@ void AOecPlayerCharacter::ExecuteQuickSlot(int32 InSlotIndex)
 
     if (!quickSlotSub || !invenSub || !dataSub) return;
 
-    // 해당 슬롯에 등록된 아이템 코드가 있는지 확인
+    // 1. 해당 슬롯의 아이템 코드 가져오기
     FName targetItemCode = quickSlotSub->GetItemAtSlot(InSlotIndex);
-    if (targetItemCode == NAME_None) return; // 빈 슬롯
+    if (targetItemCode == NAME_None) return;
 
-    // 그 아이템을 내가 진짜로 인벤토리에 가지고 있는지 확인 (수량 체크 로직 필요)
-    // TODO: invenSub에 HasItem(FName InItemCode) 같은 함수 하나 만들어두면 편해!
-
+    // 2. 데이터 테이블에서 상세 정보 찾기
     const FItemStaticData* itemData = dataSub->GetItemData(targetItemCode);
-    if (itemData && itemData->ItemType == EItemType::Consumable)
+    if (!itemData) return;
+
+    // 3. 타입에 따라 행동 결정
+    if (itemData->ItemType == EItemType::Consumable)
     {
-        UE_LOG(LogTemp, Log, TEXT("%d번 퀵슬롯 아이템 사용: %s"), InSlotIndex, *itemData->ItemName);
-
-        // 여기에 GAS 어빌리티 트리거 또는 체력 회복 로직 추가!
-
-        // 다 썼으면 인벤토리에서 1개 빼기
+        // 소비템: 사용하고 개수 줄이기
+        UE_LOG(LogTemp, Log, TEXT("%d번 슬롯 소비템 사용: %s"), InSlotIndex, *itemData->ItemName);
         invenSub->RemoveItem(targetItemCode, 1);
+    }
+    else if (itemData->ItemType == EItemType::Weapon)
+    {
+        // 무기: 장착 프로세스 시작!
+        UE_LOG(LogTemp, Log, TEXT("%d번 슬롯 무기 장착: %s"), InSlotIndex, *itemData->ItemName);
+
+        // 데이터 테이블에 적힌 애니메이션 상태(Rifle, Pistol 등)와 아이템 코드를 넘김
+        SetWeaponState(itemData->WeaponAnimState, targetItemCode);
     }
 }
 
 void AOecPlayerCharacter::SetWeaponState(EOecWeaponState InNewState, FName InItemCode)
 {
+    UE_LOG(LogTemp, Warning, TEXT("[SetWeaponState] 1. 함수 진입! 상태: %d, 아이템코드: %s"), (int32)InNewState, *InItemCode.ToString());
+
     CurrentWeaponState = InNewState;
     
      //1. 기존에 들고 있던 무기가 있다면 파괴 (또는 풀링 반납)
-     if (CurrentWeaponActor) CurrentWeaponActor->Destroy();
-
+    if (CurrentWeaponActor)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[SetWeaponState] 1-1. 기존 무기 파괴함"));
+        CurrentWeaponActor->Destroy();
+        CurrentWeaponActor = nullptr;
+    }
     // 2. 맨손이면 여기서 종료
-    if (CurrentWeaponState == EOecWeaponState::None || InItemCode == NAME_None) return;
+    if (CurrentWeaponState == EOecWeaponState::None || InItemCode == NAME_None)
+    {
+        UE_LOG(LogTemp, Error, TEXT("[SetWeaponState] 2. 맨손 상태이거나 아이템 코드가 없어서 취소됨!"));
+        return;
+    }
 
     // 3. 게임 데이터 서브시스템에서 아이템 정보(데이터 테이블) 긁어오기
     UOecGameDataSubsystem* dataSub = GetGameInstance()->GetSubsystem<UOecGameDataSubsystem>();
-    if (!dataSub) return;
+    if (!dataSub)
+    {
+        UE_LOG(LogTemp, Error, TEXT("[SetWeaponState] 3. 데이터 서브시스템을 찾을 수 없음!"));
+        return;
+    }
 
     const FItemStaticData* itemData = dataSub->GetItemData(InItemCode);
-    if (!itemData || !itemData->ItemActorClass.LoadSynchronous()) return;
+    if (!itemData)
+    {
+        UE_LOG(LogTemp, Error, TEXT("[SetWeaponState] 4. 데이터 테이블에서 해당 아이템을 찾을 수 없음!"));
+        return;
+    }
 
-    // 4. 진짜 무기 액터 스폰!
+    // 5. 클래스 유효성 확인 (가장 의심되는 부분!!)
+    if (itemData->ItemActorClass.IsNull())
+    {
+        UE_LOG(LogTemp, Error, TEXT("[SetWeaponState] 5. 데이터 테이블에 스폰할 무기 클래스(ItemActorClass)가 비어있음!"));
+        return;
+    }
+
+    UClass* WeaponClassToSpawn = itemData->ItemActorClass.LoadSynchronous();
+    if (!WeaponClassToSpawn)
+    {
+        UE_LOG(LogTemp, Error, TEXT("[SetWeaponState] 6. 무기 클래스를 메모리에 로드하는데 실패함!"));
+        return;
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("[SetWeaponState] 7. 무기 스폰 직전! 클래스: %s"), *WeaponClassToSpawn->GetName());
+
     FActorSpawnParameters spawnParams;
     spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-    AOecWeaponBase* spawnedWeapon = GetWorld()->SpawnActor<AOecWeaponBase>(itemData->ItemActorClass.LoadSynchronous(), GetActorLocation(), GetActorRotation(), spawnParams);
+    AOecWeaponBase* spawnedWeapon = GetWorld()->SpawnActor<AOecWeaponBase>(WeaponClassToSpawn, GetActorLocation(), GetActorRotation(), spawnParams);
 
     if (spawnedWeapon)
     {
-        // 5. 💡 대망의 데이터 주입!! (여기서 데미지, 탄창 등이 총으로 들어감)
+        UE_LOG(LogTemp, Warning, TEXT("[SetWeaponState] 8. 스폰 성공! 데이터 주입 및 장착 진행"));
         spawnedWeapon->InitWeaponData(*itemData);
-
-        // 6. 플레이어 손(WeaponSocket)에 부착!
-        spawnedWeapon->Equip(this, TEXT("WeaponSocket")); // 마네킹 손의 소켓 이름 확인 필수!
-
-        // 들고 있는 무기를 변수로 기억해두기 (나중에 공격할 때 써야 함)
-        CurrentWeaponActor = spawnedWeapon; 
+        spawnedWeapon->Equip(this, TEXT("HandGrip_R"));
+        CurrentWeaponActor = spawnedWeapon;
     }
-
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("[SetWeaponState] 9. SpawnActor 자체가 실패함!"));
+    }
 }

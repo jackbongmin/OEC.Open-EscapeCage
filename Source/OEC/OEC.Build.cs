@@ -28,6 +28,8 @@ public class OEC : ModuleRules
 			// AI 시스템
 			"AIModule",
 			"NavigationSystem",
+
+            "Niagara",
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {

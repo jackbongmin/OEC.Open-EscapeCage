@@ -45,4 +45,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "OEC|Weapon")
 	virtual void StopAttack();
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "OEC|Weapon|Sockets")
+	FName LeftGripSocketName = TEXT("Grip");
+
+public:
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "OEC|Weapon")
+	FTransform GetLeftGripTransform() const;
 };

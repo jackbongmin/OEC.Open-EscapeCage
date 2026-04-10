@@ -4,8 +4,9 @@
 #include "Actors/Item/Weapon/OecRangedWeapon.h"
 #include "Data/OecDataStruct.h"
 #include "Actors/Characters/Player/OecPlayerCharacter.h"
-#include "Kismet/GameplayStatics.h" // 이펙트, 사운드, 데미지 함수용
+#include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "NiagaraFunctionLibrary.h"
 
 AOecRangedWeapon::AOecRangedWeapon()
 {
@@ -59,8 +60,8 @@ void AOecRangedWeapon::Fire()
 	}
 	if (MuzzleFlashFX)
 	{
-		// WeaponMesh의 "Muzzle"이라는 소켓 위치에서 불꽃을 터뜨림!
-		UGameplayStatics::SpawnEmitterAttached(MuzzleFlashFX, WeaponMesh, TEXT("Muzzle"));
+		// WeaponMesh의 "Muzzle" 소켓에 부착해서 재생
+		UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFlashFX, WeaponMesh, TEXT("Muzzle"), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget, true);
 	}
 
 	// 4. 히트스캔 (레이저 발사) 로직 시작!
@@ -94,9 +95,9 @@ void AOecRangedWeapon::Fire()
 		// 맞은 위치에 스파크 불꽃(ImpactFX) 생성!
 		if (ImpactFX)
 		{
-			// 불꽃이 맞은 표면의 방향(Normal)을 바라보게 회전시켜서 스폰
+			// 맞은 표면의 법선(Normal) 방향을 바라보게 회전
 			FRotator impactRotation = hitResult.ImpactNormal.Rotation();
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactFX, hitResult.ImpactPoint, impactRotation);
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ImpactFX, hitResult.ImpactPoint, impactRotation);
 		}
 
 		// 적에게 데미지 입히기 (BaseDamage는 부모 클래스에 있던 변수!)
@@ -138,3 +139,4 @@ void AOecRangedWeapon::Zoom(bool bInIsZooming)
 	if (!OwnerCharacter) return;
 
 }
+

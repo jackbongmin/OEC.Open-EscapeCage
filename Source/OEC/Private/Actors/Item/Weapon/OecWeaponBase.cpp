@@ -46,3 +46,23 @@ void AOecWeaponBase::StartAttack()
 void AOecWeaponBase::StopAttack()
 {
 }
+
+FTransform AOecWeaponBase::GetLeftGripTransform() const
+{
+	if (WeaponMesh && WeaponMesh->DoesSocketExist(LeftGripSocketName))
+	{
+		// 1. 총에 있는 'Grip' 소켓의 진짜 월드 좌표
+		FTransform gripWorld = WeaponMesh->GetSocketTransform(LeftGripSocketName, RTS_World);
+
+		// 2. 내 캐릭터의 '오른손(hand_r)' 월드 좌표
+		// (만약 애니메이션 뼈대 이름이 hand_r이 아니면 네 뼈대 이름으로 바꿔줘!)
+		FTransform rightHandWorld = OwnerCharacter->GetMesh()->GetSocketTransform(TEXT("hand_r"), RTS_World);
+
+		// 3. 오른손을 기준으로 한 'Grip'의 상대 위치(거리와 각도)를 계산해서 반환!
+		return gripWorld.GetRelativeTransform(rightHandWorld);
+
+		//return WeaponMesh->GetSocketTransform(LeftGripSocketName, RTS_World);
+	}
+
+	return FTransform();
+}

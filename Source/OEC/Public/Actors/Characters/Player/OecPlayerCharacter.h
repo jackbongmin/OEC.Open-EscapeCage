@@ -47,6 +47,9 @@ public:
     void OnSprintCompleted();
     void OnJumpAction();
 
+    void OnFireStarted(); 
+    void OnFireCompleted();
+
 protected:
     // 1인칭 카메라
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "OEC|Camera", meta = (AllowPrivateAccess = "true"))
@@ -74,6 +77,9 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OEC|Input", meta = (AllowPrivateAccess = "true"))
     UInputAction* JumpAction;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OEC|Input")
+    TObjectPtr<UInputAction> FireAction;
 
 
 
@@ -108,6 +114,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "OEC|Weapon")
     void SetWeaponState(EOecWeaponState InNewState, FName InItemCode);
+
+    UFUNCTION(BlueprintCallable, Category = "OEC|Weapon")
+	AOecWeaponBase* GetCurrentWeapon() const { return CurrentWeaponActor; }
 
 protected:
     UPROPERTY()
