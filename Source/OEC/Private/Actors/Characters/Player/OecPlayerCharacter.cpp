@@ -137,23 +137,20 @@ void AOecPlayerCharacter::ToggleInventory()
     AOecHUD* hud = Cast<AOecHUD>(pc->GetHUD());
     if (!hud || !hud->GetInGameWidget()) return;
 
-    // 최상위 위젯에서 인벤토리 패널을 가져옴
-    // (주의: InGameWidget 헤더에 GetInventoryPanel() 게터 함수를 하나 만들어둬야 해!)
     UOecInventoryPanelWidget* invenPanel = hud->GetInGameWidget()->GetInventoryPanel();
     if (!invenPanel) return;
 
-    // 현재 켜져 있는지 확인하고 반대로 뒤집기
     bool bIsVisible = invenPanel->GetVisibility() == ESlateVisibility::Visible;
 
     if (bIsVisible)
     {
-        invenPanel->HideWidget(); // OecBaseWidget에 있는 숨기기 함수
-        pc->SetUIInputMode(false); // 네가 만든 컨트롤러 함수! (게임 모드, 마우스 숨김)
+        invenPanel->HideWidget();
+        pc->SetUIInputMode(false); 
     }
     else
     {
-        invenPanel->ShowWidget(); // 보여주기
-        pc->SetUIInputMode(true); // 네가 만든 컨트롤러 함수! (게임+UI 모드, 마우스 표시)
+        invenPanel->ShowWidget(); 
+        pc->SetUIInputMode(true); 
     }
 }
 
@@ -256,15 +253,15 @@ void AOecPlayerCharacter::ExecuteQuickSlot(int32 InSlotIndex)
 
     if (!quickSlotSub || !invenSub || !dataSub) return;
 
-    // 1. 해당 슬롯의 아이템 코드 가져오기
+    // 해당 슬롯의 아이템 코드 가져오기
     FName targetItemCode = quickSlotSub->GetItemAtSlot(InSlotIndex);
     if (targetItemCode == NAME_None) return;
 
-    // 2. 데이터 테이블에서 상세 정보 찾기
+    // 데이터 테이블에서 상세 정보 찾기
     const FItemStaticData* itemData = dataSub->GetItemData(targetItemCode);
     if (!itemData) return;
 
-    // 3. 타입에 따라 행동 결정
+    // 타입에 따라 행동 결정
     if (itemData->ItemType == EItemType::Consumable)
     {
         // 소비템: 사용하고 개수 줄이기
@@ -287,21 +284,21 @@ void AOecPlayerCharacter::SetWeaponState(EOecWeaponState InNewState, FName InIte
 
     CurrentWeaponState = InNewState;
     
-     //1. 기존에 들고 있던 무기가 있다면 파괴 (또는 풀링 반납)
+     // 기존에 들고 있던 무기가 있다면 파괴 (또는 풀링 반납)
     if (CurrentWeaponActor)
     {
         UE_LOG(LogTemp, Warning, TEXT("[SetWeaponState] 1-1. 기존 무기 파괴함"));
         CurrentWeaponActor->Destroy();
         CurrentWeaponActor = nullptr;
     }
-    // 2. 맨손이면 여기서 종료
+    // 맨손이면 여기서 종료
     if (CurrentWeaponState == EOecWeaponState::None || InItemCode == NAME_None)
     {
         UE_LOG(LogTemp, Error, TEXT("[SetWeaponState] 2. 맨손 상태이거나 아이템 코드가 없어서 취소됨!"));
         return;
     }
 
-    // 3. 게임 데이터 서브시스템에서 아이템 정보(데이터 테이블) 긁어오기
+    // 게임 데이터 서브시스템에서 아이템 정보(데이터 테이블) 긁어오기
     UOecGameDataSubsystem* dataSub = GetGameInstance()->GetSubsystem<UOecGameDataSubsystem>();
     if (!dataSub)
     {
@@ -316,7 +313,7 @@ void AOecPlayerCharacter::SetWeaponState(EOecWeaponState InNewState, FName InIte
         return;
     }
 
-    // 5. 클래스 유효성 확인 (가장 의심되는 부분!!)
+    // 클래스 유효성 확인 (가장 의심되는 부분!!)
     if (itemData->ItemActorClass.IsNull())
     {
         UE_LOG(LogTemp, Error, TEXT("[SetWeaponState] 5. 데이터 테이블에 스폰할 무기 클래스(ItemActorClass)가 비어있음!"));

@@ -12,6 +12,7 @@
 
 class UNiagaraSystem;
 class USoundBase;
+class UNiagaraComponent;
 
 UCLASS()
 class OEC_API AOecRangedWeapon : public AOecWeaponBase
@@ -75,6 +76,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "OEC|Weapon|Ranged")
 	virtual void Zoom(bool bInIsZooming);
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "OEC|Weapon|Stats")
+	float SpreadAngle = 1.5f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OEC|Weapon|Effects")
+	TObjectPtr<UNiagaraSystem> TracerFX;
 
 };
