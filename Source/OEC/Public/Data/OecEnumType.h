@@ -30,6 +30,7 @@ enum class EItemType : uint8
 {
     Weapon      UMETA(DisplayName = "무기"),
     Consumable  UMETA(DisplayName = "소모품"),
+    Ammo        UMETA(DisplayName = "탄약"),
     KeyItem     UMETA(DisplayName = "퀘스트아이템")
 };
 

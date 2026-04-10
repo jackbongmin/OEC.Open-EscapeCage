@@ -152,6 +152,16 @@ struct FItemStaticData : public FTableRowBase
     // 향후 GAS 연동을 위한 태그 (Heal, SpeedUp 등)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Consumable", meta = (EditCondition = "ItemType==EItemType::Consumable", EditConditionHides))
     FGameplayTag EffectTag;
+
+    /* ==========================================
+       탄약(Ammo) 전용 수치
+       (ItemType이 Ammo일 때만 에디터에 표시됨!)
+    ========================================== */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo", meta = (EditCondition = "ItemType==EItemType::Ammo", EditConditionHides))
+    int32 AmmoGiveAmount = 0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo", meta = (EditCondition = "ItemType==EItemType::Ammo", EditConditionHides))
+    FGameplayTag AmmoTag;
 };
 
 /*

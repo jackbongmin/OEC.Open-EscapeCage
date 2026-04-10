@@ -22,6 +22,9 @@
 #include "Actors/Item/Weapon/OecWeaponBase.h"
 #include "Data/OecDataStruct.h"
 
+#include "GameplayAbilitySpec.h"
+
+
 AOecPlayerCharacter::AOecPlayerCharacter()
 {
     PrimaryActorTick.bCanEverTick = true;
@@ -54,6 +57,23 @@ void AOecPlayerCharacter::BeginPlay()
     if (UAbilitySystemComponent* asc = GetAbilitySystemComponent())
     {
         PlayerAttributeSet = const_cast<UOecPlayerAttributeSet*>(asc->GetSet<UOecPlayerAttributeSet>());
+
+        asc->SetNumericAttributeBase(UOecPlayerAttributeSet::GetHealthAttribute(), 50.0f);
+
+        if (HasAuthority())
+        {
+            for (TSubclassOf<UOecGameplayAbility>& AbilityClass : DefaultAbilities)
+            {
+                if (AbilityClass)
+                {
+                    asc->GiveAbility(FGameplayAbilitySpec(
+                        AbilityClass,
+                        1,
+                        static_cast<int32>(AbilityClass.GetDefaultObject()->AbilityInputID),
+                        this));
+                }
+            }
+        }
     }
     if (FirstPersonCamera)
     {
@@ -329,6 +349,7 @@ void AOecPlayerCharacter::ExecuteQuickSlot(int32 InSlotIndex)
     FName targetItemCode = quickSlotSub->GetItemAtSlot(InSlotIndex);
     if (targetItemCode == NAME_None) return;
 
+
     // 데이터 테이블에서 상세 정보 찾기
     const FItemStaticData* itemData = dataSub->GetItemData(targetItemCode);
     if (!itemData) return;
@@ -336,9 +357,14 @@ void AOecPlayerCharacter::ExecuteQuickSlot(int32 InSlotIndex)
     // 타입에 따라 행동 결정
     if (itemData->ItemType == EItemType::Consumable)
     {
-        // 소비템: 사용하고 개수 줄이기
-        UE_LOG(LogTemp, Log, TEXT("%d번 슬롯 소비템 사용: %s"), InSlotIndex, *itemData->ItemName);
-        invenSub->RemoveItem(targetItemCode, 1);
+        UE_LOG(LogTemp, Log, TEXT("%d번 슬롯 소비템 사용 시도: %s"), InSlotIndex, *itemData->ItemName);
+
+        if (UAbilitySystemComponent* asc = GetAbilitySystemComponent())
+        {
+            asc->AbilityLocalInputPressed(static_cast<int32>(EOecAbilityInputID::ItemUse));
+
+            invenSub->RemoveItem(targetItemCode, 1);
+        }
     }
     else if (itemData->ItemType == EItemType::Weapon)
     {

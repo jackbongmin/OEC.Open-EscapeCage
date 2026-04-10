@@ -43,4 +43,6 @@ public:
     ATTRIBUTE_ACCESSORS(UOecAttributeSetBase, Speed)
 
         virtual void PreAttributeChange(const FGameplayAttribute& InAttribute, float& InNewValue) override;
+protected:
+    virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 };

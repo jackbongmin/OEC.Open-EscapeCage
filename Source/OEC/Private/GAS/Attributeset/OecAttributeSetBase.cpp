@@ -2,6 +2,7 @@
 
 
 #include "GAS/Attributeset/OecAttributeSetBase.h"
+#include "GameplayEffectExtension.h"
 
 UOecAttributeSetBase::UOecAttributeSetBase()
 {
@@ -13,4 +14,22 @@ UOecAttributeSetBase::UOecAttributeSetBase()
 
 void UOecAttributeSetBase::PreAttributeChange(const FGameplayAttribute& InAttribute, float& InNewValue)
 {
+}
+
+void UOecAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+{
+	Super::PostGameplayEffectExecute(Data);
+
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		SetHealth(FMath::Clamp(GetHealth(), 0.0f, 100.0f));
+
+		if (GEngine)
+		{
+			FString LogMsg = FString::Printf(TEXT("💊 꿀꺽! 현재 체력: %f"), GetHealth());
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, LogMsg);
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("💊 꿀꺽! 현재 체력: %f"), GetHealth());
+	}
 }

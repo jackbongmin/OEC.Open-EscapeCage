@@ -162,7 +162,11 @@ protected:
     void OnAimStarted();
     void OnAimCompleted();
 
-    protected:
-        UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "OEC|Camera")
-        FTransform DefaultCameraTransform;
+protected:
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "OEC|Camera")
+    FTransform DefaultCameraTransform;
+
+protected:
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OEC|Abilities")
+    TArray<TSubclassOf<class UOecGameplayAbility>> DefaultAbilities;
 };

@@ -15,6 +15,7 @@ class OEC_API UOecGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
 	
+public:
 	UOecGameplayAbility();
 
 public:
