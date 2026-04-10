@@ -20,7 +20,7 @@ public:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable, Category = "OEC|UI")
-	UOecInGameWidget* GetInGameWidget() const { return InGameWidget; }
+	FORCEINLINE UOecInGameWidget* GetInGameWidget() const { return InGameWidget; }
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "OEC|UI")

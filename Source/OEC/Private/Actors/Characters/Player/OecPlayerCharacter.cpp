@@ -55,6 +55,10 @@ void AOecPlayerCharacter::BeginPlay()
     {
         PlayerAttributeSet = const_cast<UOecPlayerAttributeSet*>(asc->GetSet<UOecPlayerAttributeSet>());
     }
+    if (FirstPersonCamera)
+    {
+        DefaultCameraTransform = FirstPersonCamera->GetRelativeTransform();
+    }
 }
 
 void AOecPlayerCharacter::Tick(float InDeltaTime)
@@ -64,6 +68,50 @@ void AOecPlayerCharacter::Tick(float InDeltaTime)
     HandleStamina(InDeltaTime);
 
     UpdateMovementSettings();
+
+    if (FirstPersonCamera)
+    {
+        float TargetFOV = bIsAiming ? AimFOV : DefaultFOV;
+        float CurrentFOV = FirstPersonCamera->FieldOfView;
+
+        // ==========================================
+        // 1. 카메라 이동 및 회전 보간
+        // ==========================================
+        if (bIsAiming && CurrentWeaponActor && CurrentWeaponActor->GetWeaponMesh())
+        {
+            // 💡 [조준 중] 절대적인 '월드 좌표' 기준으로 조준경에 카메라를 갖다 붙임!
+            FVector TargetWorldLoc = CurrentWeaponActor->GetWeaponMesh()->GetSocketLocation(TEXT("SightSocket"));
+            FRotator TargetWorldRot = CurrentWeaponActor->GetWeaponMesh()->GetSocketRotation(TEXT("SightSocket"));
+
+            FVector CurrentWorldLoc = FirstPersonCamera->GetComponentLocation();
+            FRotator CurrentWorldRot = FirstPersonCamera->GetComponentRotation();
+
+            FVector NewLoc = FMath::VInterpTo(CurrentWorldLoc, TargetWorldLoc, InDeltaTime, ZoomInterpSpeed);
+            FRotator NewRot = FMath::RInterpTo(CurrentWorldRot, TargetWorldRot, InDeltaTime, ZoomInterpSpeed);
+
+            FirstPersonCamera->SetWorldLocationAndRotation(NewLoc, NewRot);
+        }
+        else
+        {
+            // 💡 [비조준 중] 캡슐을 기준으로 한 원래 얼굴 위치 '상대 좌표'로 복귀!
+            FVector TargetRelLoc = DefaultCameraTransform.GetLocation();
+            FRotator TargetRelRot = DefaultCameraTransform.GetRotation().Rotator();
+
+            FVector CurrentRelLoc = FirstPersonCamera->GetRelativeLocation();
+            FRotator CurrentRelRot = FirstPersonCamera->GetRelativeRotation();
+
+            FVector NewLoc = FMath::VInterpTo(CurrentRelLoc, TargetRelLoc, InDeltaTime, ZoomInterpSpeed);
+            FRotator NewRot = FMath::RInterpTo(CurrentRelRot, TargetRelRot, InDeltaTime, ZoomInterpSpeed);
+
+            FirstPersonCamera->SetRelativeLocationAndRotation(NewLoc, NewRot);
+        }
+
+        // ==========================================
+        // 2. FOV (시야각) 보간 적용
+        // ==========================================
+        float NewFOV = FMath::FInterpTo(CurrentFOV, TargetFOV, InDeltaTime, ZoomInterpSpeed);
+        FirstPersonCamera->SetFieldOfView(NewFOV);
+    }
 }
 
 void AOecPlayerCharacter::SetupPlayerInputComponent(UInputComponent* InPlayerInputComponent)
@@ -95,6 +143,11 @@ void AOecPlayerCharacter::SetupPlayerInputComponent(UInputComponent* InPlayerInp
         {
             enhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &AOecPlayerCharacter::OnFireStarted);
             enhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &AOecPlayerCharacter::OnFireCompleted);
+        }
+        if (AimAction)
+        {
+            enhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &AOecPlayerCharacter::OnAimStarted);
+            enhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AOecPlayerCharacter::OnAimCompleted);
         }
     }
 }
@@ -235,6 +288,17 @@ void AOecPlayerCharacter::OnFireStarted()
     {
         CurrentWeaponActor->StartAttack();
     }
+
+    if (APlayerController* pc = Cast<APlayerController>(GetController()))
+    {
+        if (AOecHUD* hud = Cast<AOecHUD>(pc->GetHUD()))
+        {
+            if (hud->GetInGameWidget())
+            {
+                hud->GetInGameWidget()->PlayCrosshairFireAnim();
+            }
+        }
+    }
 }
 
 void AOecPlayerCharacter::OnFireCompleted()
@@ -275,6 +339,17 @@ void AOecPlayerCharacter::ExecuteQuickSlot(int32 InSlotIndex)
 
         // 데이터 테이블에 적힌 애니메이션 상태(Rifle, Pistol 등)와 아이템 코드를 넘김
         SetWeaponState(itemData->WeaponAnimState, targetItemCode);
+
+        if (APlayerController* pc = Cast<APlayerController>(GetController()))
+        {
+            if (AOecHUD* hud = Cast<AOecHUD>(pc->GetHUD()))
+            {
+                if (hud->GetInGameWidget())
+                {
+                    hud->GetInGameWidget()->UpdateCrosshairState(true);
+                }
+            }
+        }
     }
 }
 
@@ -345,4 +420,18 @@ void AOecPlayerCharacter::SetWeaponState(EOecWeaponState InNewState, FName InIte
     {
         UE_LOG(LogTemp, Error, TEXT("[SetWeaponState] 9. SpawnActor 자체가 실패함!"));
     }
+}
+
+void AOecPlayerCharacter::OnAimStarted()
+{
+    // 현재 무기를 들고 있을 때만 조준 가능하게 처리! (맨손일 때 줌 땡기면 이상하니까)
+    if (CurrentWeaponActor)
+    {
+        bIsAiming = true;
+    }
+}
+
+void AOecPlayerCharacter::OnAimCompleted()
+{
+    bIsAiming = false;
 }

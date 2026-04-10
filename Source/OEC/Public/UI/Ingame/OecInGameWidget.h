@@ -11,6 +11,8 @@
  */
 
 class UOecQuickSlotPanelWidget;
+class UOecCrosshairWidget;
+
 
 UCLASS()
 class OEC_API UOecInGameWidget : public UOecBaseWidget
@@ -30,4 +32,11 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	class UOecInventoryPanelWidget* InventoryPanel;
+
+public:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UOecCrosshairWidget> CrosshairWidget;
+
+	void UpdateCrosshairState(bool InbIsArmed);
+	void PlayCrosshairFireAnim();
 };

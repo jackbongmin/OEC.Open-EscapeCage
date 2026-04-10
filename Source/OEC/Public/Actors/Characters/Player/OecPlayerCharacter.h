@@ -17,6 +17,7 @@ class UInputAction;
 struct FInputActionValue;
 enum class EOecWeaponState : uint8;
 class UOecPlayerAttributeSet;
+class UOecCrosshairWidget;
 
 UCLASS()
 class OEC_API AOecPlayerCharacter : public AOecCharacterBase
@@ -127,4 +128,41 @@ protected:
     bool bIsExhausted = false;
     float RegenDelayTimer = 0.f;
 
+protected:
+    UPROPERTY(EditDefaultsOnly, Category = "OEC|UI")
+    TSubclassOf<UOecCrosshairWidget> CrosshairWidgetClass;
+
+    UPROPERTY()
+    TObjectPtr<UOecCrosshairWidget> CrosshairWidgetInstance;
+
+public:
+    void SetAiming(bool bInAiming) { bIsAiming = bInAiming; }
+
+protected:
+    // 현재 정조준 중인지 체크
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "OEC|Camera")
+    bool bIsAiming = false;
+
+    // 기본 시야각 (보통 90)
+    UPROPERTY(EditDefaultsOnly, Category = "OEC|Camera")
+    float DefaultFOV = 90.0f;
+
+    // 정조준 시 시야각 (숫자가 작아질수록 화면이 확대됨!)
+    UPROPERTY(EditDefaultsOnly, Category = "OEC|Camera")
+    float AimFOV = 60.0f;
+
+    // 줌인/줌아웃 속도
+    UPROPERTY(EditDefaultsOnly, Category = "OEC|Camera")
+    float ZoomInterpSpeed = 15.0f;
+
+protected:
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OEC|Input")
+    class UInputAction* AimAction;
+
+    void OnAimStarted();
+    void OnAimCompleted();
+
+    protected:
+        UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "OEC|Camera")
+        FTransform DefaultCameraTransform;
 };
