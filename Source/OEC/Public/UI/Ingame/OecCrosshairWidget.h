@@ -39,4 +39,14 @@ protected:
 public:
 	void OnWeaponStateChanged(bool bIsArmed);
 	void OnFireWeapon();
+
+protected:
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	TObjectPtr<UWidgetAnimation> Anim_Aim;
+
+public:
+	void OnAimStateChanged(bool bIsAiming);
+
+protected:
+	bool bIsCurrentlyAiming = false;
 };

@@ -27,3 +27,11 @@ void UOecInGameWidget::PlayCrosshairFireAnim()
 		CrosshairWidget->OnFireWeapon();
 	}
 }
+
+void UOecInGameWidget::UpdateCrosshairAimState(bool bIsAiming)
+{
+	if (CrosshairWidget)
+	{
+		CrosshairWidget->OnAimStateChanged(bIsAiming);
+	}
+}

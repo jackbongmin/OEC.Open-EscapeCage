@@ -146,6 +146,14 @@ void AOecRangedWeapon::Fire()
 	{
 		pc->ClientStartCameraShake(FireCameraShakeClass);
 	}
+	if (pc)
+	{
+		float PitchRecoil = FMath::RandRange(MinPitchRecoil, MaxPitchRecoil);
+		float YawRecoil = FMath::RandRange(-YawRecoilRange, YawRecoilRange);
+
+		pc->AddPitchInput(PitchRecoil);
+		pc->AddYawInput(YawRecoil);
+	}
 }
 
 void AOecRangedWeapon::Reload()

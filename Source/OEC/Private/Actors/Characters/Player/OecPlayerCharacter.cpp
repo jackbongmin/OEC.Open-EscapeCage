@@ -428,10 +428,18 @@ void AOecPlayerCharacter::OnAimStarted()
     if (CurrentWeaponActor)
     {
         bIsAiming = true;
+        if (APlayerController* pc = Cast<APlayerController>(GetController()))
+            if (AOecHUD* hud = Cast<AOecHUD>(pc->GetHUD()))
+                if (hud->GetInGameWidget())
+                    hud->GetInGameWidget()->UpdateCrosshairAimState(true);
     }
 }
 
 void AOecPlayerCharacter::OnAimCompleted()
 {
     bIsAiming = false;
+    if (APlayerController* pc = Cast<APlayerController>(GetController()))
+        if (AOecHUD* hud = Cast<AOecHUD>(pc->GetHUD()))
+            if (hud->GetInGameWidget())
+                hud->GetInGameWidget()->UpdateCrosshairAimState(false);
 }

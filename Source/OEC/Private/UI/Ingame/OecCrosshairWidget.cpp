@@ -27,8 +27,36 @@ void UOecCrosshairWidget::OnWeaponStateChanged(bool bIsArmed)
 
 void UOecCrosshairWidget::OnFireWeapon()
 {
-	if (Anim_Fire)
+	if (!bIsCurrentlyAiming)
 	{
-		PlayAnimation(Anim_Fire);
+		if (Anim_Fire)
+		{
+			PlayAnimation(Anim_Fire);
+		}
+	}
+	else
+	{
+		
+	}
+}
+
+void UOecCrosshairWidget::OnAimStateChanged(bool bIsAiming)
+{
+	bIsCurrentlyAiming = bIsAiming;
+
+	if (DotImage && CrossCanvas)
+	{
+		if (bIsAiming)
+		{
+			// 조준 중: 점 나타나고, 십자선 모이는 애니메이션
+			DotImage->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+			if (Anim_Aim) PlayAnimation(Anim_Aim, 0.0f, 1, EUMGSequencePlayMode::Forward);
+		}
+		else
+		{
+			// 지향 사격: 점 숨기고, 십자선 벌어지는 애니메이션
+			DotImage->SetVisibility(ESlateVisibility::Hidden);
+			if (Anim_Aim) PlayAnimation(Anim_Aim, 0.0f, 1, EUMGSequencePlayMode::Reverse);
+		}
 	}
 }

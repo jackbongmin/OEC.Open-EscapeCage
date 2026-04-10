@@ -39,4 +39,6 @@ public:
 
 	void UpdateCrosshairState(bool InbIsArmed);
 	void PlayCrosshairFireAnim();
+
+	void UpdateCrosshairAimState(bool bIsAiming);
 };

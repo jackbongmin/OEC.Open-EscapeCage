@@ -86,4 +86,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "OEC|Feedback")
 	TSubclassOf<class UCameraShakeBase> FireCameraShakeClass;
 
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "OEC|Feedback")
+	float MinPitchRecoil = -0.6f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "OEC|Feedback")
+	float MaxPitchRecoil = -0.1f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "OEC|Feedback")
+	float YawRecoilRange = 0.5f;
+
 };
