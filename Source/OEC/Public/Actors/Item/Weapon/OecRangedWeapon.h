@@ -57,7 +57,6 @@ protected:
 
 	// 연사 타이머 관리용
 	FTimerHandle FireTimerHandle;
-	bool bIsReloading = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OEC|Weapon|Effects")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
@@ -66,12 +65,6 @@ public:
 	virtual void StartAttack() override;
 	// 마우스 좌클릭 뗌 (연사 중지)
 	virtual void StopAttack() override;
-
-	virtual void Fire();
-
-	// 장전 (R키)
-	UFUNCTION(BlueprintCallable, Category = "OEC|Weapon|Ranged")
-	virtual void Reload();
 
 	// 정조준 (마우스 우클릭)
 	UFUNCTION(BlueprintCallable, Category = "OEC|Weapon|Ranged")

@@ -324,10 +324,6 @@ void AOecPlayerCharacter::OnFireStarted()
             }
         }
     }
-    //if (UAbilitySystemComponent* asc = GetAbilitySystemComponent())
-    //{
-    //    asc->AbilityLocalInputPressed(static_cast<int32>(EOecAbilityInputID::Fire));
-    //}
 }
 
 void AOecPlayerCharacter::OnFireCompleted()
