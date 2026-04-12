@@ -60,7 +60,7 @@ void AOecPlayerCharacter::BeginPlay()
         PlayerAttributeSet = const_cast<UOecPlayerAttributeSet*>(asc->GetSet<UOecPlayerAttributeSet>());
 
         asc->SetNumericAttributeBase(UOecPlayerAttributeSet::GetHealthAttribute(), 50.0f);
-
+        asc->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("Character.Player")));
         if (HasAuthority())
         {
             for (TSubclassOf<UOecGameplayAbility>& AbilityClass : DefaultAbilities)

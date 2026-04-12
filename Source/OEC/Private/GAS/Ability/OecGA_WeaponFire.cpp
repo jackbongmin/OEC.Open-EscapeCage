@@ -83,11 +83,18 @@ void UOecGA_WeaponFire::ActivateAbility(const FGameplayAbilitySpecHandle InHandl
 
 		if (bHit)
 		{
+			AActor* hitActor = hitResult.GetActor();
+			UE_LOG(LogTemp, Warning, TEXT("🎯 1. 레이저 적중! 맞은 액터: %s"), hitActor ? *hitActor->GetName() : TEXT("None"));
+			
 			// 타겟 확인 및 데미지 GE 적용
 			if (IAbilitySystemInterface* targetInterface = Cast<IAbilitySystemInterface>(hitResult.GetActor()))
 			{
 				UAbilitySystemComponent* targetASC = targetInterface->GetAbilitySystemComponent();
 				UAbilitySystemComponent* sourceASC = InActorInfo->AbilitySystemComponent.Get();
+
+				FGameplayTag monsterTag = FGameplayTag::RequestGameplayTag(FName("Character.Monster"));
+
+				UE_LOG(LogTemp, Warning, TEXT("🎯 2. 타겟 ASC 확인 완료! GE 주문서 굽기 시작..."));
 
 				if (targetASC && sourceASC)
 				{
@@ -96,12 +103,17 @@ void UOecGA_WeaponFire::ActivateAbility(const FGameplayAbilitySpecHandle InHandl
 
 					if (specHandle.IsValid())
 					{
-						// 무기 베이스 데미지 전송!
 						specHandle.Data.Get()->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), -weapon->GetBaseDamage());
 						sourceASC->ApplyGameplayEffectSpecToTarget(*specHandle.Data.Get(), targetASC);
+
+						UE_LOG(LogTemp, Warning, TEXT("🎯 몬스터 타격 성공! 데미지 전송됨."));
 					}
 				}
 			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("❌ 레이저에 맞은 액터가 IAbilitySystemInterface 명찰이 없음!"));
 		}
 	}
 
