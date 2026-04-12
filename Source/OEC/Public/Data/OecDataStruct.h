@@ -137,7 +137,16 @@ struct FItemStaticData : public FTableRowBase
     UAnimMontage* FireMontage; 
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (EditCondition = "ItemType==EItemType::Weapon", EditConditionHides))
+    UAnimMontage* ReloadMontage;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (EditCondition = "ItemType==EItemType::Weapon", EditConditionHides))
     EOecWeaponState WeaponAnimState = EOecWeaponState::None;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (EditCondition = "ItemType==EItemType::Weapon", EditConditionHides))
+    TSubclassOf<class UOecGameplayAbility> WeaponAbilityClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (EditCondition = "ItemType==EItemType::Weapon", EditConditionHides))
+    TSubclassOf<class UOecGameplayAbility> ReloadAbilityClass;
 
     /* ==========================================
        소모품(Consumable) 전용 수치

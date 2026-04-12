@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Actors/Characters/OecCharacterBase.h"
+#include "Data/OecEnumType.h"
 #include "OecPlayerCharacter.generated.h"
 
 /**
@@ -51,6 +52,8 @@ public:
     void OnFireStarted(); 
     void OnFireCompleted();
 
+    void OnReloadStarted();
+
 protected:
     // 1인칭 카메라
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "OEC|Camera", meta = (AllowPrivateAccess = "true"))
@@ -81,6 +84,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OEC|Input")
     TObjectPtr<UInputAction> FireAction;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OEC|Input")
+    TObjectPtr<UInputAction> ReloadAction;
 
 
 

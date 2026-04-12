@@ -9,6 +9,12 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 
+#include "GameplayEffect.h"
+
+#include "GAS/Attributeset/OecPlayerAttributeSet.h"
+#include "AbilitySystemComponent.h"
+
+
 AOecRangedWeapon::AOecRangedWeapon()
 {
 }
@@ -19,8 +25,11 @@ void AOecRangedWeapon::InitWeaponData(const FItemStaticData& InWeaponData)
 
 
 	MaxAmmoInClip = InWeaponData.ClipSize;
+	UseAmmoItemCode = InWeaponData.UseAmmoItemCode;
+	ReloadMontage = InWeaponData.ReloadMontage;
 
-	CurrentAmmo = MaxAmmoInClip;
+	//CurrentAmmo = MaxAmmoInClip;
+	CurrentAmmo = 0;
 }
 
 void AOecRangedWeapon::StartAttack()
@@ -28,12 +37,12 @@ void AOecRangedWeapon::StartAttack()
 	if (bIsReloading) return;
 
 	// 2. 첫 발은 즉시 발사
-	Fire();
+	TriggerFireAbility();
 
 	// 3. 연사 설정 (FireRate 간격으로 Fire 함수를 반복 호출)
 	if (FireRate > 0.0f)
 	{
-		GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AOecRangedWeapon::Fire, FireRate, true);
+		GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AOecRangedWeapon::TriggerFireAbility, FireRate, true);
 	}
 }
 
@@ -44,116 +53,138 @@ void AOecRangedWeapon::StopAttack()
 
 void AOecRangedWeapon::Fire()
 {
-	// 1. 탄창 체크
-	if (CurrentAmmo <= 0)
-	{
-		// TODO: 찰칵! 하는 빈 탄창 소리 재생
-		return;
-	}
+	//// 1. 탄창 체크
+	//if (CurrentAmmo <= 0)
+	//{
+	//	// TODO: 찰칵! 하는 빈 탄창 소리 재생
+	//	return;
+	//}
 
-	// 2. 총알 감소
-	CurrentAmmo--;
+	//// 2. 총알 감소
+	//CurrentAmmo--;
 
-	// 3. 총구 불꽃 & 사운드 재생
-	if (FireSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	}
-	if (MuzzleFlashFX)
-	{
-		// WeaponMesh의 "Muzzle" 소켓에 부착해서 재생
-		UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFlashFX, WeaponMesh, TEXT("Muzzle"), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget, true);
-	}
+	//// 3. 총구 불꽃 & 사운드 재생
+	//if (FireSound)
+	//{
+	//	UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+	//}
+	//if (MuzzleFlashFX)
+	//{
+	//	// WeaponMesh의 "Muzzle" 소켓에 부착해서 재생
+	//	UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFlashFX, WeaponMesh, TEXT("Muzzle"), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget, true);
+	//}
 
-	if (!OwnerCharacter) return;
+	//if (!OwnerCharacter) return;
 
-	APlayerController* pc = Cast<APlayerController>(OwnerCharacter->GetController());
-	if (!pc) return;
+	//APlayerController* pc = Cast<APlayerController>(OwnerCharacter->GetController());
+	//if (!pc) return;
 
-	// ==========================================
-	// 1. [논리적 발사] 데미지 판정은 무조건 '카메라(눈)' 기준!
-	// ==========================================
+	//// ==========================================
+	//// 1. [논리적 발사] 데미지 판정은 무조건 '카메라(눈)' 기준!
+	//// ==========================================
 
-	FVector cameraLocation;
-	FRotator cameraRotation;
-	pc->GetPlayerViewPoint(cameraLocation, cameraRotation);
+	//FVector cameraLocation;
+	//FRotator cameraRotation;
+	//pc->GetPlayerViewPoint(cameraLocation, cameraRotation);
 
-	FVector traceStart = cameraLocation;
-	FVector cameraForward = cameraRotation.Vector();
+	//FVector traceStart = cameraLocation;
+	//FVector cameraForward = cameraRotation.Vector();
 
-	// 카메라가 바라보는 방향을 기준으로 탄퍼짐(원뿔) 생성!
-	float halfAngleRad = FMath::DegreesToRadians(SpreadAngle);
-	FVector shootDirection = FMath::VRandCone(cameraForward, halfAngleRad);
+	//// 카메라가 바라보는 방향을 기준으로 탄퍼짐(원뿔) 생성!
+	//float halfAngleRad = FMath::DegreesToRadians(SpreadAngle);
+	//FVector shootDirection = FMath::VRandCone(cameraForward, halfAngleRad);
 
-	// 레이저의 끝점 (카메라 위치 + 퍼진 방향 * 사거리)
-	FVector traceEnd = traceStart + (shootDirection * FireDistance);
+	//// 레이저의 끝점 (카메라 위치 + 퍼진 방향 * 사거리)
+	//FVector traceEnd = traceStart + (shootDirection * FireDistance);
 
-	FHitResult hitResult;
-	FCollisionQueryParams queryParams;
-	queryParams.AddIgnoredActor(this);
-	queryParams.AddIgnoredActor(OwnerCharacter);
+	//FHitResult hitResult;
+	//FCollisionQueryParams queryParams;
+	//queryParams.AddIgnoredActor(this);
+	//queryParams.AddIgnoredActor(OwnerCharacter);
 
-	// 눈(카메라)에서부터 레이저 쏘기! 
-	bool bHit = GetWorld()->LineTraceSingleByChannel(hitResult, traceStart, traceEnd, ECC_Visibility, queryParams);
+	//// 눈(카메라)에서부터 레이저 쏘기! 
+	//bool bHit = GetWorld()->LineTraceSingleByChannel(hitResult, traceStart, traceEnd, ECC_Visibility, queryParams);
 
-	// 최종적으로 총알이 박혀야 할 진짜 목표 지점
-	FVector targetPoint = bHit ? hitResult.ImpactPoint : traceEnd;
+	//// 최종적으로 총알이 박혀야 할 진짜 목표 지점
+	//FVector targetPoint = bHit ? hitResult.ImpactPoint : traceEnd;
 
-	if (bHit)
-	{
-		// 5. 무언가에 맞았다면! (데미지 및 스파크)
-		AActor* hitActor = hitResult.GetActor();
+	//if (bHit)
+	//{
+	//	// 5. 무언가에 맞았다면! (데미지 및 스파크)
+	//	AActor* hitActor = hitResult.GetActor();
 
-		if (ImpactFX)
-		{
-			FRotator impactRotation = hitResult.ImpactNormal.Rotation();
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ImpactFX, hitResult.ImpactPoint, impactRotation);
-		}
+	//	if (ImpactFX)
+	//	{
+	//		FRotator impactRotation = hitResult.ImpactNormal.Rotation();
+	//		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ImpactFX, hitResult.ImpactPoint, impactRotation);
+	//	}
 
-		if (hitActor)
-		{
-			UGameplayStatics::ApplyDamage(hitActor, BaseDamage, pc, this, UDamageType::StaticClass());
-		}
-	}
+	//	if (hitActor)
+	//	{
+	//		//UGameplayStatics::ApplyDamage(hitActor, BaseDamage, pc, this, UDamageType::StaticClass());
+	//		IAbilitySystemInterface* targetInterface = Cast<IAbilitySystemInterface>(hitActor);
+	//		if (targetInterface)
+	//		{
+	//			UAbilitySystemComponent* targetASC = targetInterface->GetAbilitySystemComponent();
+	//			UAbilitySystemComponent* sourceASC = OwnerCharacter->GetAbilitySystemComponent();
 
-	// ==========================================
-	// 2. [시각적 발사] 빛줄기(Tracer)는 '총구'에서 '목표 지점'으로 이어 그리기!
-	// ==========================================
-	if (TracerFX && WeaponMesh)
-	{
-		// 이펙트의 시작점은 '진짜 총구' 위치
-		FVector muzzleLocation = WeaponMesh->GetSocketLocation(TEXT("Muzzle"));
+	//			if (targetASC && sourceASC && DamageEffectClass)
+	//			{
+	//				// 2. 데미지 주문서(GE) 생성
+	//				FGameplayEffectContextHandle contextHandle = sourceASC->MakeEffectContext();
+	//				FGameplayEffectSpecHandle specHandle = sourceASC->MakeOutgoingSpec(DamageEffectClass, 1.0f, contextHandle);
 
-		// 총구와 최종 목표 지점 사이의 거리
-		float distanceFromMuzzle = FVector::Distance(muzzleLocation, targetPoint);
+	//				if (specHandle.IsValid())
+	//				{
+	//					// 3. 💡 핵심: 무기의 BaseDamage를 'Data.Damage' 태그로 전달!
+	//					specHandle.Data.Get()->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), -BaseDamage);
 
-		if (distanceFromMuzzle > 200.0f)
-		{
-			// 💡 방향: (목표 지점 - 총구 위치) = 총구에서 목표를 바라보는 방향!
-			FVector traceDir = (targetPoint - muzzleLocation).GetSafeNormal();
-			float bulletSpeed = 20000.0f;
-			float bulletLifetime = distanceFromMuzzle / bulletSpeed;
+	//					// 4. 타겟에게 적용!
+	//					sourceASC->ApplyGameplayEffectSpecToTarget(*specHandle.Data.Get(), targetASC);
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
 
-			UNiagaraComponent* tracerComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), TracerFX, muzzleLocation);
-			if (tracerComp)
-			{
-				tracerComp->SetVectorParameter(TEXT("Velocity"), traceDir * bulletSpeed);
-				tracerComp->SetFloatParameter(TEXT("Lifetime"), bulletLifetime);
-			}
-		}
-	}
-	if (pc && FireCameraShakeClass)
-	{
-		pc->ClientStartCameraShake(FireCameraShakeClass);
-	}
-	if (pc)
-	{
-		float PitchRecoil = FMath::RandRange(MinPitchRecoil, MaxPitchRecoil);
-		float YawRecoil = FMath::RandRange(-YawRecoilRange, YawRecoilRange);
+	//// ==========================================
+	//// 2. [시각적 발사] 빛줄기(Tracer)는 '총구'에서 '목표 지점'으로 이어 그리기!
+	//// ==========================================
+	//if (TracerFX && WeaponMesh)
+	//{
+	//	// 이펙트의 시작점은 '진짜 총구' 위치
+	//	FVector muzzleLocation = WeaponMesh->GetSocketLocation(TEXT("Muzzle"));
 
-		pc->AddPitchInput(PitchRecoil);
-		pc->AddYawInput(YawRecoil);
-	}
+	//	// 총구와 최종 목표 지점 사이의 거리
+	//	float distanceFromMuzzle = FVector::Distance(muzzleLocation, targetPoint);
+
+	//	if (distanceFromMuzzle > 200.0f)
+	//	{
+	//		// 💡 방향: (목표 지점 - 총구 위치) = 총구에서 목표를 바라보는 방향!
+	//		FVector traceDir = (targetPoint - muzzleLocation).GetSafeNormal();
+	//		float bulletSpeed = 20000.0f;
+	//		float bulletLifetime = distanceFromMuzzle / bulletSpeed;
+
+	//		UNiagaraComponent* tracerComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), TracerFX, muzzleLocation);
+	//		if (tracerComp)
+	//		{
+	//			tracerComp->SetVectorParameter(TEXT("Velocity"), traceDir * bulletSpeed);
+	//			tracerComp->SetFloatParameter(TEXT("Lifetime"), bulletLifetime);
+	//		}
+	//	}
+	//}
+	//if (pc && FireCameraShakeClass)
+	//{
+	//	pc->ClientStartCameraShake(FireCameraShakeClass);
+	//}
+	//if (pc)
+	//{
+	//	float PitchRecoil = FMath::RandRange(MinPitchRecoil, MaxPitchRecoil);
+	//	float YawRecoil = FMath::RandRange(-YawRecoilRange, YawRecoilRange);
+
+	//	pc->AddPitchInput(PitchRecoil);
+	//	pc->AddYawInput(YawRecoil);
+	//}
 }
 
 void AOecRangedWeapon::Reload()
@@ -187,6 +218,78 @@ void AOecRangedWeapon::Zoom(bool bInIsZooming)
 		OwnerCharacter->SetAiming(bInIsZooming);
 
 		// TODO: 조준하면 크로스헤어가 좁아지거나, 마우스 감도가 느려지는 기능도 나중에 여기에 추가하면 완벽해!
+	}
+}
+
+void AOecRangedWeapon::PlayFireFX()
+{
+	if (FireSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+	}
+	if (MuzzleFlashFX)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFlashFX, WeaponMesh, TEXT("Muzzle"), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget, true);
+	}
+
+	if (OwnerCharacter)
+	{
+		if (APlayerController* pc = Cast<APlayerController>(OwnerCharacter->GetController()))
+		{
+			if (FireCameraShakeClass)
+			{
+				pc->ClientStartCameraShake(FireCameraShakeClass);
+			}
+			float pitchRecoil = FMath::RandRange(MinPitchRecoil, MaxPitchRecoil);
+			float yawRecoil = FMath::RandRange(-YawRecoilRange, YawRecoilRange);
+			pc->AddPitchInput(pitchRecoil);
+			pc->AddYawInput(yawRecoil);
+		}
+	}
+}
+
+void AOecRangedWeapon::PlayHitAndTracerFX(const FHitResult& InHitResult, const FVector& InTraceEnd, bool InbHit)
+{
+	FVector targetPoint = InbHit ? InHitResult.ImpactPoint : InTraceEnd;
+
+	// 1. 벽/적에 맞았을 때 스파크(Impact) 튀기기
+	if (InbHit && ImpactFX)
+	{
+		FRotator impactRotation = InHitResult.ImpactNormal.Rotation();
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ImpactFX, InHitResult.ImpactPoint, impactRotation);
+	}
+
+	// 2. 총구에서 날아가는 빛줄기(Tracer) 그리기
+	if (TracerFX && WeaponMesh)
+	{
+		FVector muzzleLocation = WeaponMesh->GetSocketLocation(TEXT("Muzzle"));
+		float distanceFromMuzzle = FVector::Distance(muzzleLocation, targetPoint);
+
+		if (distanceFromMuzzle > 200.0f)
+		{
+			FVector traceDir = (targetPoint - muzzleLocation).GetSafeNormal();
+			float bulletSpeed = 20000.0f;
+			float bulletLifetime = distanceFromMuzzle / bulletSpeed;
+
+			UNiagaraComponent* tracerComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), TracerFX, muzzleLocation);
+			if (tracerComp)
+			{
+				tracerComp->SetVectorParameter(TEXT("Velocity"), traceDir * bulletSpeed);
+				tracerComp->SetFloatParameter(TEXT("Lifetime"), bulletLifetime);
+			}
+		}
+	}
+}
+
+void AOecRangedWeapon::TriggerFireAbility()
+{
+	if (OwnerCharacter)
+	{
+		if (UAbilitySystemComponent* asc = OwnerCharacter->GetAbilitySystemComponent())
+		{
+			asc->AbilityLocalInputPressed(static_cast<int32>(EOecAbilityInputID::Fire));
+			asc->AbilityLocalInputReleased(static_cast<int32>(EOecAbilityInputID::Fire));
+		}
 	}
 }
 

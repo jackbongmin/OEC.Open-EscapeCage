@@ -56,4 +56,6 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "OEC|Weapon")
 	FTransform GetLeftGripTransform() const;
+
+	float GetBaseDamage() const { return BaseDamage; }
 };

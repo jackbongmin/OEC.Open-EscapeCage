@@ -42,6 +42,10 @@ public:
     FGameplayAttributeData Speed;
     ATTRIBUTE_ACCESSORS(UOecAttributeSetBase, Speed)
 
+        UPROPERTY(BlueprintReadOnly, Category = "OEC|Attributes")
+    FGameplayAttributeData Defense;
+    ATTRIBUTE_ACCESSORS(UOecAttributeSetBase, Defense)
+
         virtual void PreAttributeChange(const FGameplayAttribute& InAttribute, float& InNewValue) override;
 protected:
     virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;

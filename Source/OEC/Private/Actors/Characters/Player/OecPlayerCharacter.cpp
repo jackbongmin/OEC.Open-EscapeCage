@@ -23,6 +23,7 @@
 #include "Data/OecDataStruct.h"
 
 #include "GameplayAbilitySpec.h"
+#include "GAS/Ability/OecGameplayAbility.h"
 
 
 AOecPlayerCharacter::AOecPlayerCharacter()
@@ -168,6 +169,10 @@ void AOecPlayerCharacter::SetupPlayerInputComponent(UInputComponent* InPlayerInp
         {
             enhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &AOecPlayerCharacter::OnAimStarted);
             enhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AOecPlayerCharacter::OnAimCompleted);
+        }
+        if (ReloadAction)
+        {
+            enhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &AOecPlayerCharacter::OnReloadStarted);
         }
     }
 }
@@ -319,10 +324,10 @@ void AOecPlayerCharacter::OnFireStarted()
             }
         }
     }
-    if (UAbilitySystemComponent* asc = GetAbilitySystemComponent())
-    {
-        asc->AbilityLocalInputPressed(static_cast<int32>(EOecAbilityInputID::Fire));
-    }
+    //if (UAbilitySystemComponent* asc = GetAbilitySystemComponent())
+    //{
+    //    asc->AbilityLocalInputPressed(static_cast<int32>(EOecAbilityInputID::Fire));
+    //}
 }
 
 void AOecPlayerCharacter::OnFireCompleted()
@@ -331,9 +336,14 @@ void AOecPlayerCharacter::OnFireCompleted()
     {
         CurrentWeaponActor->StopAttack();
     }
+
+}
+
+void AOecPlayerCharacter::OnReloadStarted()
+{
     if (UAbilitySystemComponent* asc = GetAbilitySystemComponent())
     {
-        asc->AbilityLocalInputReleased(static_cast<int32>(EOecAbilityInputID::Fire));
+        asc->AbilityLocalInputPressed(static_cast<int32>(EOecAbilityInputID::Reload));
     }
 }
 
@@ -459,6 +469,27 @@ void AOecPlayerCharacter::SetWeaponState(EOecWeaponState InNewState, FName InIte
         spawnedWeapon->InitWeaponData(*itemData);
         spawnedWeapon->Equip(this, TEXT("HandGrip_R"));
         CurrentWeaponActor = spawnedWeapon;
+
+        if (UAbilitySystemComponent* asc = GetAbilitySystemComponent())
+        {
+            if (itemData->WeaponAbilityClass)
+            {
+                FGameplayAbilitySpec spec(itemData->WeaponAbilityClass, 1, static_cast<int32>(EOecAbilityInputID::Fire), spawnedWeapon);
+
+                asc->GiveAbility(spec);
+                UE_LOG(LogTemp, Warning, TEXT("[SetWeaponState] 무기 전용 발사 스킬(GA) 부여 완료!"));
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("[SetWeaponState] 에러! DT에 WeaponAbilityClass가 비어있음!"));
+            }
+            if (itemData->ReloadAbilityClass)
+            {
+                FGameplayAbilitySpec reloadSpec(itemData->ReloadAbilityClass, 1, static_cast<int32>(EOecAbilityInputID::Reload), spawnedWeapon);
+                asc->GiveAbility(reloadSpec);
+                UE_LOG(LogTemp, Warning, TEXT("[SetWeaponState] 무기 전용 장전 스킬(GA) 부여 완료!"));
+            }
+        }
     }
     else
     {

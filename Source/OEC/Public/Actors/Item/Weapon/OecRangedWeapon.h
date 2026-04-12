@@ -59,13 +59,14 @@ protected:
 	FTimerHandle FireTimerHandle;
 	bool bIsReloading = false;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OEC|Weapon|Effects")
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
 public:
 	// 마우스 좌클릭 (총알 발사 시작)
 	virtual void StartAttack() override;
 	// 마우스 좌클릭 뗌 (연사 중지)
 	virtual void StopAttack() override;
 
-	// 실제 총알 1발 발사 처리 (LineTrace 또는 Projectile 발사)
 	virtual void Fire();
 
 	// 장전 (R키)
@@ -95,5 +96,34 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "OEC|Feedback")
 	float YawRecoilRange = 0.5f;
+
+public:
+	void PlayFireFX();
+
+	int32 GetCurrentAmmo() const { return CurrentAmmo; }
+	void ConsumeAmmo(int32 InAmount) { CurrentAmmo = FMath::Max(0, CurrentAmmo - InAmount); }
+
+public:
+	float GetFireDistance() const { return FireDistance; }
+	float GetSpreadAngle() const { return SpreadAngle; }
+
+protected:
+	UPROPERTY()
+	FName UseAmmoItemCode;
+
+	UPROPERTY()
+	UAnimMontage* ReloadMontage;
+
+public:
+	int32 GetMaxAmmoInClip() const { return MaxAmmoInClip; }
+	FName GetUseAmmoItemCode() const { return UseAmmoItemCode; }
+	UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
+
+	void AddAmmo(int32 InAmount) { CurrentAmmo = FMath::Min(MaxAmmoInClip, CurrentAmmo + InAmount); }
+
+public:
+	void PlayHitAndTracerFX(const FHitResult& InHitResult, const FVector& InTraceEnd, bool InbHit);
+
+	void TriggerFireAbility();
 
 };
