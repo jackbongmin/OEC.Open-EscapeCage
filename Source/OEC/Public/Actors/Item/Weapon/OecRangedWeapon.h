@@ -13,6 +13,7 @@
 class UNiagaraSystem;
 class USoundBase;
 class UNiagaraComponent;
+class UGameplayEffect;
 
 UCLASS()
 class OEC_API AOecRangedWeapon : public AOecWeaponBase

@@ -20,10 +20,15 @@
 #include "AbilitySystemComponent.h"
 
 #include "Actors/Item/Weapon/OecWeaponBase.h"
+#include "Actors/Item/Weapon/OecRangedWeapon.h"
 #include "Data/OecDataStruct.h"
 
 #include "GameplayAbilitySpec.h"
 #include "GAS/Ability/OecGameplayAbility.h"
+
+#include "UI/Ingame/OecInGameWidget.h"
+#include "UI/Ingame/OecStatPanelWidget.h" 
+#include "UI/Ingame/OecWeaponPanelWidget.h"
 
 
 AOecPlayerCharacter::AOecPlayerCharacter()
@@ -133,6 +138,8 @@ void AOecPlayerCharacter::Tick(float InDeltaTime)
         float NewFOV = FMath::FInterpTo(CurrentFOV, TargetFOV, InDeltaTime, ZoomInterpSpeed);
         FirstPersonCamera->SetFieldOfView(NewFOV);
     }
+    UpdateStatUI();
+    UpdateWeaponAmmoUI();
 }
 
 void AOecPlayerCharacter::SetupPlayerInputComponent(UInputComponent* InPlayerInputComponent)
@@ -466,6 +473,22 @@ void AOecPlayerCharacter::SetWeaponState(EOecWeaponState InNewState, FName InIte
         spawnedWeapon->Equip(this, TEXT("HandGrip_R"));
         CurrentWeaponActor = spawnedWeapon;
 
+        if (APlayerController* pc = Cast<APlayerController>(GetController()))
+        {
+            if (AOecHUD* hud = Cast<AOecHUD>(pc->GetHUD()))
+            {
+                if (UOecInGameWidget* mainWidget = hud->GetInGameWidget())
+                {
+                    if (UOecWeaponPanelWidget* weaponPanel = mainWidget->GetWeaponPanel())
+                    {
+                        weaponPanel->UpdateIcon(itemData->ItemIcon);
+                    }
+                }
+            }
+        }
+
+        UpdateWeaponAmmoUI();
+
         if (UAbilitySystemComponent* asc = GetAbilitySystemComponent())
         {
             if (itemData->WeaponAbilityClass)
@@ -513,4 +536,51 @@ void AOecPlayerCharacter::OnAimCompleted()
         if (AOecHUD* hud = Cast<AOecHUD>(pc->GetHUD()))
             if (hud->GetInGameWidget())
                 hud->GetInGameWidget()->UpdateCrosshairAimState(false);
+}
+
+void AOecPlayerCharacter::UpdateStatUI()
+{
+    if (APlayerController* pc = Cast<APlayerController>(GetController()))
+    {
+        if (AOecHUD* hud = Cast<AOecHUD>(pc->GetHUD()))
+        {
+            if (UOecInGameWidget* mainWidget = hud->GetInGameWidget())
+            {
+                if (UOecStatPanelWidget* statPanel = mainWidget->GetStatPanel())
+                {
+                    if (PlayerAttributeSet)
+                    {
+                        statPanel->UpdateHealth(PlayerAttributeSet->GetHealth(), PlayerAttributeSet->GetMaxHealth());
+                        statPanel->UpdateStamina(PlayerAttributeSet->GetStamina(), PlayerAttributeSet->GetMaxStamina());
+                        statPanel->UpdateSanity(PlayerAttributeSet->GetSanity(), PlayerAttributeSet->GetMaxSanity());
+                    }
+                }
+            }
+        }
+    }
+}
+
+void AOecPlayerCharacter::UpdateWeaponAmmoUI()
+{
+    if (!CurrentWeaponActor) return;
+
+    if (AOecRangedWeapon* rangedWeapon = Cast<AOecRangedWeapon>(CurrentWeaponActor))
+    {
+        if (APlayerController* pc = Cast<APlayerController>(GetController()))
+        {
+            if (AOecHUD* hud = Cast<AOecHUD>(pc->GetHUD()))
+            {
+                if (UOecInGameWidget* mainWidget = hud->GetInGameWidget())
+                {
+                    if (UOecWeaponPanelWidget* weaponPanel = mainWidget->GetWeaponPanel())
+                    {
+                        UOecInventorySubsystem* invenSub = GetGameInstance()->GetSubsystem<UOecInventorySubsystem>();
+                        int32 reserveAmmo = invenSub ? invenSub->GetItemQuantity(rangedWeapon->GetUseAmmoItemCode()) : 0;
+
+                        weaponPanel->UpdateAmmo(rangedWeapon->GetCurrentAmmo(), reserveAmmo);
+                    }
+                }
+            }
+        }
+    }
 }

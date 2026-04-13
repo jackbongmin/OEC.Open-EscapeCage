@@ -12,7 +12,8 @@
 
 class UOecQuickSlotPanelWidget;
 class UOecCrosshairWidget;
-
+class UOecStatPanelWidget;
+class UOecWeaponPanelWidget;
 
 UCLASS()
 class OEC_API UOecInGameWidget : public UOecBaseWidget
@@ -23,6 +24,9 @@ public:
 	UOecQuickSlotPanelWidget* GetQuickSlotPanel() const { return QuickSlotPanel; }
 
 	class UOecInventoryPanelWidget* GetInventoryPanel() const { return InventoryPanel; }
+
+	UOecStatPanelWidget* GetStatPanel() const { return StatPanel; }
+	UOecWeaponPanelWidget* GetWeaponPanel() const { return WeaponPanel; }
 
 protected:
 	virtual void NativeConstruct() override;
@@ -41,4 +45,11 @@ public:
 	void PlayCrosshairFireAnim();
 
 	void UpdateCrosshairAimState(bool bIsAiming);
+
+protected:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UOecStatPanelWidget> StatPanel;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UOecWeaponPanelWidget> WeaponPanel;
 };

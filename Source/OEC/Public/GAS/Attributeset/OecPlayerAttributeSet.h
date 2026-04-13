@@ -22,6 +22,11 @@ public:
     FGameplayAttributeData Sanity;
     ATTRIBUTE_ACCESSORS(UOecPlayerAttributeSet, Sanity)
 
+    UPROPERTY(BlueprintReadOnly, Category = "OEC|Attributes")
+    FGameplayAttributeData MaxSanity;
+    ATTRIBUTE_ACCESSORS(UOecPlayerAttributeSet, MaxSanity)
+
+
     UPROPERTY(BlueprintReadOnly, Category = "Attributes")
     FGameplayAttributeData AnswerCount;
     ATTRIBUTE_ACCESSORS(UOecPlayerAttributeSet, AnswerCount)

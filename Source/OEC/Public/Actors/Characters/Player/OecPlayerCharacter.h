@@ -175,4 +175,12 @@ protected:
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OEC|Abilities")
     TArray<TSubclassOf<class UOecGameplayAbility>> DefaultAbilities;
+
+public:
+    UFUNCTION(BlueprintCallable, Category = "OEC|UI")
+    void UpdateStatUI();
+
+    UFUNCTION(BlueprintCallable, Category = "OEC|UI")
+    void UpdateWeaponAmmoUI();
+
 };
