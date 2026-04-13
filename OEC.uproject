@@ -12,7 +12,8 @@
 				"DeveloperSettings",
 				"Engine",
 				"GameplayAbilities",
-				"UMG"
+				"UMG",
+				"AIModule"
 			]
 		}
 	],
