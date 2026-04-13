@@ -173,6 +173,8 @@ struct FItemStaticData : public FTableRowBase
     FGameplayTag AmmoTag;
 };
 
+class UOecGameplayAbility;
+
 /*
 ===========================================================================
 몬스터 데이터
@@ -199,9 +201,26 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float MoveSpeed;
 
-    // 죽었을 때 줄 아이템 (ItemStaticData의 ItemCode 연결)
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FName DropItemCode;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TObjectPtr<UAnimMontage> AttackMontage;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TObjectPtr<UAnimMontage> DeathMontage;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float AttackRange;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float AttackRadius;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName AttackSocketName;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TArray<TSubclassOf<UOecGameplayAbility>> DefaultAbilities;
 };
 
 /*

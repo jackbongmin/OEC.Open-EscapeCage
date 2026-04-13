@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "Interfaces/OecPoolableInterface.h"
+#include "Subsystems/WorldSubsystem.h"
 #include "OecPoolingSubsystem.generated.h"
 
 /**
